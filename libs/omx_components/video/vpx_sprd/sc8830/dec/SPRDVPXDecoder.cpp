@@ -719,6 +719,7 @@ void SPRDVPXDecoder::onQueueFilled(OMX_U32 portIndex) {
         ALOGI("%s, %d, mBuffer=0x%x, outHeader=0x%x, iRefCount=%d", __FUNCTION__, __LINE__, *itBuffer, outHeader, pBufCtrl->iRefCount);
         ALOGI("%s, %d, inHeader: 0x%x, len: %d, time: %lld, EOS: %d", __FUNCTION__, __LINE__,inHeader, inHeader->nFilledLen,inHeader->nTimeStamp,inHeader->nFlags & OMX_BUFFERFLAG_EOS);
 
+
         if (inHeader->nFlags & OMX_BUFFERFLAG_EOS) {
             mEOSStatus = INPUT_EOS_SEEN; //the last frame size may be not zero, it need to be decoded.
         }
@@ -917,14 +918,22 @@ bool SPRDVPXDecoder::drainAllOutputBuffers() {
     void *pBufferHeader;
 
     while (!outQueue.empty() && mEOSStatus != OUTPUT_FRAMES_FLUSHED) {
-
-        if ((*mVPXDecGetLastDspFrm)(mHandle, &pBufferHeader) ) {
+        
+        if ((*mVPXDecGetLastDspFrm)(mHandle, &pBufferHeader)) {
             ALOGI("%s, %d, VPXDecGetLastDspFrm, pBufferHeader: 0x%x", __FUNCTION__, __LINE__, pBufferHeader);
-            List<BufferInfo *>::iterator it = outQueue.begin();
-            while ((*it)->mHeader != (OMX_BUFFERHEADERTYPE*)pBufferHeader && it != outQueue.end()) {
+            
+            List<BufferInfo *>::iterator it = outQueue.begin();            
+            while ((*it) && (*it)->mHeader != (OMX_BUFFERHEADERTYPE*)pBufferHeader && it != outQueue.end()) {
                 ++it;
             }
+            
+            if (!(*it) ){
+                ALOGI("%s, %d, This frame (pBufferHeader: 0x%x) has already been output", __FUNCTION__, __LINE__, pBufferHeader);
+                continue;
+            }
+            
             CHECK((*it)->mHeader == (OMX_BUFFERHEADERTYPE*)pBufferHeader);
+            
             outInfo = *it;
             outQueue.erase(it);
             outHeader = outInfo->mHeader;
