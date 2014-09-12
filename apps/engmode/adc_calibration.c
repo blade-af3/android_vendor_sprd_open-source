@@ -260,12 +260,85 @@ static void ap_get_fgu_vol_adc(MSG_AP_ADC_CNF *pMsgADC)
     read_len = get_fgu_vol_adc(&vol_adc);
 
     if(read_len>0){
-		pMsgADC->ap_adc_req.parameters[0] = vol_adc;
-		pMsgADC->diag_ap_cnf.status = 0;
-	}
-	else{
-		pMsgADC->diag_ap_cnf.status = 1;
-	}
+        pMsgADC->ap_adc_req.parameters[0] = vol_adc;
+        pMsgADC->diag_ap_cnf.status = 0;
+    }
+    else{
+        pMsgADC->diag_ap_cnf.status = 1;
+    }
+}
+
+static int get_fgu_current_real(int *value)
+{
+    int fd = -1;
+    int read_len = 0;
+    char buffer[16]={0};
+    char *endptr;
+
+    fd = open(FGU_CURRENT_FILE_PATH,O_RDONLY);
+
+    if(fd >= 0){
+        read_len = read(fd,buffer,sizeof(buffer));
+        if(read_len > 0)
+            *value = strtol(buffer,&endptr,0);
+        close(fd);
+        ENG_LOG("%s %s value = %d\n",__func__,FGU_VOL_FILE_PATH, *value);
+    }
+    else{
+        ENG_LOG("%s open %s failed\n",__func__,FGU_CURRENT_FILE_PATH);
+    }
+    return read_len;
+}
+static int get_fgu_vol_real(int *value)
+{
+    int fd = -1;
+    int read_len = 0;
+    char buffer[16]={0};
+    char *endptr;
+
+    fd = open(FGU_VOL_FILE_PATH,O_RDONLY);
+
+    if(fd >= 0){
+        read_len = read(fd,buffer,sizeof(buffer));
+        if(read_len > 0)
+            *value = strtol(buffer,&endptr,0);
+        close(fd);
+        ENG_LOG("%s %s value = %d, read_len = %d \n",__func__,FGU_VOL_FILE_PATH, *value, read_len);
+    }
+    else{
+        ENG_LOG("%s open %s failed\n",__func__,FGU_VOL_FILE_PATH);
+    }
+    return read_len;
+}
+
+static void ap_get_fgu_current_real(MSG_AP_ADC_CNF *pMsgADC)
+{
+    int	real_current = 0;
+    int      read_len = 0;
+
+    read_len = get_fgu_current_real(&real_current);
+    if(read_len>0){
+        pMsgADC->ap_adc_req.parameters[0] = real_current;
+        pMsgADC->diag_ap_cnf.status = 0;
+    }
+    else{
+        pMsgADC->diag_ap_cnf.status = 1;
+    }
+}
+
+static void ap_get_fgu_vol_real(MSG_AP_ADC_CNF *pMsgADC)
+{
+    int	real_vol = 0;
+    int      read_len = 0;
+    read_len = get_fgu_vol_real(&real_vol);
+
+    if(read_len>0){
+        pMsgADC->ap_adc_req.parameters[0] = real_vol ;
+        pMsgADC->diag_ap_cnf.status = 0;
+    }
+    else{
+        pMsgADC->diag_ap_cnf.status = 1;
+    }
 }
 
 /*copy from packet.c and modify*/
@@ -362,6 +435,12 @@ static int is_adc_calibration(char *dest, int destSize, char *src,int srcSize)
                             return AP_GET_FGU_VOL_ADC;
 			    else if (lpAPADCReq->operate == 4)
                             return AP_GET_FGU_CURRENT_ADC;
+                    else if (lpAPADCReq->operate == 5)
+                        return AP_GET_FGU_TYPE;
+                    else if (lpAPADCReq->operate == 6)
+                        return AP_GET_FGU_VOL_REAL;
+                    else if (lpAPADCReq->operate == 7)
+                        return AP_GET_FGU_CURRENT_REAL;
 			    else
                             return 0;
                     }
@@ -475,6 +554,11 @@ int  ap_adc_process(int adc_cmd, char * src, int size, MSG_AP_ADC_CNF * pMsgADC)
 	 case AP_GET_FGU_CURRENT_ADC:
 		ap_get_fgu_current_adc(pMsgADC);
 		break;
+        case AP_GET_FGU_VOL_REAL:
+            ap_get_fgu_vol_real(pMsgADC);
+            break;
+        case AP_GET_FGU_CURRENT_REAL:
+            ap_get_fgu_current_real(pMsgADC);
         default:
             return 0;
     }
