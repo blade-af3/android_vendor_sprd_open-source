@@ -424,7 +424,7 @@ struct config_element sprd_front_camera_hardware_config[] = {
 	/*	{"picture-size-values", "2048x1536,1600x1200,1280x960,640x480"},*/
 	{"picture-size-values", "640x480,320x240"},
 	{"picture-size", "640x480"},
-	{"preview-size-values",	"960x540,720x540,720x480,640x480,352x288,320x240,176x144"},
+	{"preview-size-values", "720x480,640x480,352x288,320x240,176x144"},
 	{"preview-size", "640x480"},
 	{"video-size-values",  "720x480,176x144"},
 	{"video-size", "720x480"},
