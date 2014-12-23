@@ -595,6 +595,9 @@ int camera_set_flash(uint32_t flash_mode, uint32_t *skip_mode, uint32_t *skip_nu
 		if (FLASH_CLOSE == status || FLASH_TORCH == status)
 		ret = camera_set_flashdevice(status);
 		cxt->cmr_set.flash = status;
+	}else if ( flash_mode == CAMERA_FLASH_MODE_ON ) {
+		ret = camera_set_flashdevice(FLASH_CLOSE);
+		cxt->cmr_set.flash_mode = flash_mode ;
 	}
 
 	CMR_LOGI("ret %d, flash %d, flash_mode %d", ret, cxt->cmr_set.flash, flash_mode);
@@ -1382,6 +1385,8 @@ int camera_set_ctrl(camera_parm_type id,
 	case CAMERA_PARM_FLASH:/* Flash control, see camera_flash_type */
 		if (CAMERA_FLASH_MODE_AUTO == parm) {
 			cxt->cmr_set.flash_mode = parm;
+			if (cxt->cmr_set.flash == FLASH_TORCH)
+				ret = camera_set_flash(CAMERA_FLASH_MODE_OFF, &skip_mode, &skip_number);
 		} else {
 			cxt->cmr_set.flash_mode = CAMERA_FLASH_MODE_MAX;
 			ret = camera_set_flash(parm, &skip_mode, &skip_number);
