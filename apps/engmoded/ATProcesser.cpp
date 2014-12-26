@@ -10,6 +10,13 @@
 #endif
 #include "HTTPRequest.h"
 
+
+#ifdef ANDROID
+#include <cutils/log.h>
+#include <android/log.h>
+#define MYLOG(args...)  __android_log_print(ANDROID_LOG_INFO,  "HAOYOUGEN", ## args)
+#endif
+
 ATProcesser::ATProcesser(string url):m_url(url)
 {
     m_cmd = HTTPRequest::URL::getParameter(url, "cmd");
@@ -274,6 +281,7 @@ string ATProcesser::property_get(string key)
     memset(value, 0, sizeof(value));
     ::property_get((char *)key.c_str(), value, "");
     string cmdstring = string("getprop ") + key;
+    MYLOG("PROPERTY DEBUG property_get key = %s, value = %s.", key.c_str(), value);
     //return this->shell(cmdstring,"r");
     return string(value);
 }
@@ -292,6 +300,7 @@ string ATProcesser::shell(string cmd, string rw)
     string result;
 
     if(!(in = popen(cmd.c_str(), rw.c_str()))){
+        MYLOG("PROPERTY DEBUG shell cmd = %s, result = %s.", cmd.c_str(), result.c_str());
         return result;
     }
 
@@ -301,6 +310,6 @@ string ATProcesser::shell(string cmd, string rw)
         memset(buff, 0, sizeof(buff));
     }
     pclose(in);
-
+    MYLOG("PROPERTY DEBUG shell cmd = %s, result = %s.", cmd.c_str(), result.c_str());
     return result;
 }
