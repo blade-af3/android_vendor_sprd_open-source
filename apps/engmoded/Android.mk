@@ -14,7 +14,7 @@ LOCAL_C_INCLUDES    += HTTP.h
 LOCAL_C_INCLUDES    +=  vendor/sprd/open-source/libs/libatchannel/
 LOCAL_MODULE := engmoded
 LOCAL_STATIC_LIBRARIES := libcutils 
-LOCAL_SHARED_LIBRARIES := libstlport libatchannel
+LOCAL_SHARED_LIBRARIES := libstlport libatchannel liblog
 #libengclient
 LOCAL_MODULE_TAGS := optional
 include external/stlport/libstlport.mk
