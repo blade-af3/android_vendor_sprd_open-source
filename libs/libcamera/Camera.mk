@@ -34,6 +34,7 @@ LOCAL_SRC_FILES:= \
 	sc8830/src/SprdOEMCamera.c \
 	sc8830/src/SprdCameraParameters.cpp \
 	sc8830/src/SprdCameraHardware_autest_Interface.cpp  \
+	sc8830/src/SprdCameraHardware_Eng_Test_Interface.cpp \
 	sc8830/src/cmr_oem.c \
 	sc8830/src/cmr_set.c \
 	sc8830/src/cmr_mem.c \
