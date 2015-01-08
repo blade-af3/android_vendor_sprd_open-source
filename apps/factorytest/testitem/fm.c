@@ -364,6 +364,7 @@ FM_TEST_FAIL:
 
     sleep(2);
 
+	save_result(CASE_TEST_FM,ret);
     return ret;
 }
 

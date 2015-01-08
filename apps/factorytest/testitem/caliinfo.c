@@ -81,24 +81,30 @@ int str_replace(char *p_result,char* p_source,char* p_seach,char *p_repstr)
 }
 
 
-
+extern int text_rows;
 
 int test_cali_info(void)
 {
 	int ret = 0;
+	int i;
 	int row = 2;
-	char tmp[512];
-	char tmp2[512];
+	char tmp[512][23];
+	char tmp2[512][23];
 	char* pcur;
 	char* pos1;
 	char* pos2;
 	int len;
 	int testlen;
+	int row_num=0;
+	int cali_size=0;
+	unsigned char chang_page=0;
+	unsigned char change=1;
 	ui_fill_locked();
 	ui_show_title(MENU_CALI_INFO);
 	pcur = test_modem_get_caliinfo();
 	len = strlen(pcur);
-    //LOGD("mmitest %s\n",pcur);
+    cali_size=sizeof(tmp[0])/sizeof(tmp[0][0]);
+	LOGD("mmitest calisize %d", cali_size);
 	ui_set_color(CL_WHITE);
 	while(len > 0) {
 		pos1 = strchr(pcur, ':');
@@ -109,18 +115,65 @@ int test_cali_info(void)
 			strcpy(tmp, pos1);
 			len = 0;
 		} else {
-			memcpy(tmp, pos1, (pos2-pos1));
-			tmp[pos2-pos1] = '\0';
+			memcpy(tmp[row_num], pos1, (pos2-pos1));
+			tmp[pos2-pos1][row_num] = '\0';
 			len -= (pos2 - pcur);
 			pcur = pos2;
 		}
-		testlen=str_replace(tmp2,tmp,"calibrated","cali");
-		//LOGD("mmitest<%s> %d", tmp2,testlen);
-		row = ui_show_text(row, 0, tmp2);
+		testlen=str_replace(tmp2[row_num],tmp[row_num],"calibrated","cali");
+		LOGD("mmitest<%s> %d", tmp2,testlen);
+		row_num++;
 	}
-	gr_flip();
-	//ui_wait_key(NULL);
+if(cali_size<=(text_rows-2))
+	{
+		row=2;
+		for(i=0;i<cali_size;i++)
+		{
+			row = ui_show_text(row, 0, tmp2[i]);
+			gr_flip();
+		}
+		while(ui_handle_button(NULL,NULL)!=RL_FAIL);
+	}
+
+	else
+	{
+		LOGD("mmitest bit than");
+		do{
+			if(chang_page==RL_PASS)
+			{
+				change=!change;
+				chang_page=RL_NA;
+				LOGD("show result change=%d",change);
+			}
+			if(change==1)
+			{
+				ui_set_color(CL_SCREEN_BG);
+	            gr_fill(0, 0, gr_fb_width(), gr_fb_height());
+				ui_fill_locked();
+				ui_show_title(MENU_CALI_INFO);
+				row=2;
+				for(i = 0; i < text_rows-2; i++){
+					row = ui_show_text(row, 0, tmp2[i]);
+					gr_flip();
+				}
+			}
+
+			else if(change==0)
+			{
+			row=2;
+			ui_set_color(CL_SCREEN_BG);
+        	gr_fill(0, 0, gr_fb_width(), gr_fb_height());
+			ui_fill_locked();
+			ui_show_title(MENU_CALI_INFO);
+			for(i = 0; i < cali_size+2-text_rows; i++){
+				row = ui_show_text(row, 0, tmp2[text_rows-2+i]);
+				gr_flip();
+			}
+			}
+		}while((chang_page=ui_handle_button(NULL,NULL))!=RL_FAIL);
+	}
+
 	LOGD("mmitest before button");
-	ret=ui_handle_button(NULL,NULL);
-	return ret;
+	return 0;
+
 }

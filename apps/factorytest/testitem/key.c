@@ -18,7 +18,7 @@ struct test_key test_key_info[] = {
 	{KEY_MENU,		 0,  TEXT_KEY_MENU},
 	{KEY_BACK,		 0,  TEXT_KEY_BACK},
 	{KEY_HOMEPAGE,	 0,  TEXT_KEY_HOMEPAGE},
-	{KEY_CAMERA,	 0,  TEXT_KEY_CAMERA},
+//	{KEY_CAMERA,	 0,  TEXT_KEY_CAMERA},
 };
 
 int test_key_start(void)
@@ -36,13 +36,8 @@ int test_key_start(void)
 	LOGD("mmitest [%s]: start\n", __FUNCTION__);
 	ui_fill_locked();
 	ui_show_title(MENU_TEST_KEY);
-	ui_set_color(CL_WHITE);
-	cur_row=ui_show_text(cur_row, 0, TEXT_CAMERA_KEY_YES_NO);
+	ui_set_color(CL_GREEN);
 
-    ret=ui_handle_button(TEXT_YES,TEXT_NO);
-
-	if(ret==RL_FAIL)
-		test_cnt-=1;
 
 	cur_row=ui_show_text(cur_row, 0, TEXT_KEY_ILLUSTRATE);
 
@@ -85,7 +80,7 @@ int test_key_start(void)
 		ui_show_text(cur_row+2, 0, TEXT_TEST_FAIL);
 		gr_flip();
 		sleep(1);
-		return RL_FAIL;
+		ret= RL_FAIL;
 	}
 	else                              //+++++++++++++++
 	{
@@ -93,6 +88,8 @@ int test_key_start(void)
 		ui_show_text(cur_row+2, 0, TEXT_TEST_PASS);
 		gr_flip();
 		sleep(1);
-		return RL_PASS;
+		ret= RL_PASS;
 	}
+	save_result(CASE_TEST_KEY,ret);
+	return ret;
 }

@@ -27,7 +27,7 @@ int test_otg_start(void)
 		else
 		{
 			ret=RL_NS;
-			ui_set_color(CL_RED);
+			ui_set_color(CL_BLUE);
 			cur_row = ui_show_text(cur_row, 0, OTG_NOT_SUPPORT);
 		}
     }
@@ -41,7 +41,7 @@ int test_otg_start(void)
 	//ret = ui_handle_button(TEXT_PASS, TEXT_FAIL);
 	gr_flip();
 	sleep(1);
-
+	save_result(CASE_TEST_OTG,ret);
 	return ret;
 }
 

@@ -12,6 +12,8 @@ char* wifi_text[10][10];
 pthread_mutex_t wifi_mutex;
 pthread_cond_t wifi_cond;
 pthread_mutex_t wifi_cond_mutex;
+char wifi_addre[64];
+
 
 char* locstrchr(const char *s, char q)
 {
@@ -140,7 +142,8 @@ int eng_wpa_scan()
 {
 	int count = 5;
 	int len = 0;
-
+	int fd_address;
+    memset(wifi_addre,0,sizeof(wifi_addre));
 	/*if (is_on){*/
 	system("mkdir /data/misc/");
 	system("chown system.misc /data/misc/");
@@ -183,11 +186,18 @@ int eng_wpa_scan()
 		If antenna conflicting between wifi and bt cause scan fail, process retried 5 times at most.*/
 		system("echo -n \"MAC: \" > /data/misc/wifi/wifi_test.txt");
 		system("cat /sys/class/net/wlan0/address >> /data/misc/wifi/wifi_test.txt");
+		system("cat /sys/class/net/wlan0/address >> /data/misc/wifi/wifi_address.txt");
 		if(system("wpa_cli -iwlan0 -p/data/misc/wifi/sockets scan_results >> /data/misc/wifi/wifi_test.txt")<0)
 		{
 			SPRD_ERR("MMI wifi error: wpa_cli scan_results!\n");
 			return -1;
 		}
+		fd_address=open("/data/misc/wifi/wifi_address.txt",O_RDONLY);
+		read(fd_address,wifi_addre,17);
+		wifi_addre[17]='\0';
+		close(fd_address);
+		LOGD("mmitest wifi_addre=%s\n",wifi_addre);
+		system("rm -f /data/misc/wifi/wifi_address.txt");
 		len = seek_file("/data/misc/wifi/wifi_test.txt");
 		if(len>110)
 			break;
@@ -400,16 +410,21 @@ int eng_wifi_scan_start(void)
 
 int test_wifi_pretest(void)
 {
+	int ret;
 	if(eng_wifi_finish == 1)
-		return RL_PASS;
+		ret= RL_PASS;
 	else
-		return RL_FAIL;
+		ret= RL_FAIL;
+
+	save_result(CASE_TEST_WIFI,ret);
+	return ret;
 }
 
 int test_wifi_start(void)
 {
 	SPRD_DBG("%s enter", __FUNCTION__);
 	int i=0;
+	int ret=0;
 	int midrow = gr_fb_height()/CHAR_HEIGHT/2;
 	int midcol = gr_fb_width()/CHAR_WIDTH/2;
 
@@ -438,7 +453,9 @@ int test_wifi_start(void)
 			ui_set_color(CL_WHITE);
 			ui_show_text(midrow, midcol-strlen(SPRD_WIFI_ERROR)/2, SPRD_WIFI_ERROR);
 			gr_flip();
-			return RL_FAIL;
+			ret= RL_FAIL;
+			save_result(CASE_TEST_WIFI,ret);
+			return ret;
 		}
 		else if(eng_wifi_finish==1)
 		{
@@ -480,10 +497,14 @@ int test_wifi_start(void)
 		ui_set_color(CL_WHITE);
 		ui_show_text(midrow, midcol-strlen(SPRD_WIFI_TIMEOUT)/2, SPRD_WIFI_TIMEOUT);
 		gr_flip();
-		return RL_FAIL;
+		ret= RL_FAIL;
+		save_result(CASE_TEST_WIFI,ret);
+		return ret;
 	}
 	sleep(1);
-	return RL_PASS;
+	ret= RL_PASS;
+	save_result(CASE_TEST_WIFI,ret);
+	return ret;
 }
 
 

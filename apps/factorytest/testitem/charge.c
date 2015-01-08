@@ -256,6 +256,7 @@ int test_charge_start(void)
 
     ui_fill_locked();
     ui_show_title(MENU_TEST_CHARGE);
+	gr_flip();
 	LOGD("%s start", __FUNCTION__);
 	thread_run=1;
 	pthread_create(&thead, NULL, (void*)charge_thread, NULL);
@@ -263,7 +264,7 @@ int test_charge_start(void)
 	thread_run=0;
 	pthread_join(thead, NULL);
 	LOGD("%s end", __FUNCTION__);
-
+	save_result(CASE_TEST_CHARGE,ret);
 	return ret;
 }
 

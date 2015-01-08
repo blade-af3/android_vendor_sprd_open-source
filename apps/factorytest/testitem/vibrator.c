@@ -38,7 +38,7 @@ int test_vibrator_start(void)
 	ui_set_color(CL_GREEN);
 	row = ui_show_text(row, 0, TEXT_VIB_FINISH);
 	ui_show_text(row, 0, TEXT_FINISH);
-
-	ret = ui_handle_button(TEXT_PASS, TEXT_FAIL);//, TEXT_GOBACK
+	gr_flip();
+	ret = ui_handle_button(NULL, NULL);//, TEXT_GOBACK
 	return ret;
 }

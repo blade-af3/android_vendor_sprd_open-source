@@ -129,7 +129,7 @@ typedef unsigned char*BD_NAME_PTR;                /* Pointer to Device name */
 
 
 /***************key**************/
-#define KEY_TIMEOUT 15
+#define KEY_TIMEOUT 20
 /***************end key**********/
 
 
@@ -257,4 +257,69 @@ static char* modem_port[] = {
 #define TEL_DEVICE_PATH "/dev/stty_w0"
 /**************end tel**********/
 
+
+/**************result***************/
+typedef struct mmitest_result
+{
+	char *name;
+	unsigned int id;
+	unsigned char pass_faild;
+}mmi_result;
+
+
+
+/**********************************************************************/
+
+
+enum case_num
+{
+	CASE_TEST_LCD,
+	CASE_TEST_TP,
+	CASE_TEST_VIBRATOR,
+	CASE_TEST_BACKLIGHT,
+	CASE_TEST_KEY,
+	CASE_TEST_FCAMERA,
+	CASE_TEST_BCAMERA,
+	CASE_TEST_FLASH,
+	CASE_TEST_MAINLOOP,
+	CASE_TEST_ASSISLOOP,
+	CASE_TEST_RECEIVER,
+	CASE_TEST_CHARGE,
+	CASE_TEST_SDCARD,
+	CASE_TEST_SIMCARD,
+	CASE_TEST_HEADSET,
+	CASE_TEST_FM,
+	CASE_TEST_GSENSOR,
+	CASE_TEST_LSENSOR,
+	CASE_TEST_BT,
+	CASE_TEST_WIFI,
+	CASE_TEST_GPS,
+	CASE_TEST_TEL,
+	CASE_TEST_OTG,
+	CASE_TEST_MSENSOR,
+	TOTAL_NUM
+};
+
+extern mmi_result phone_result[TOTAL_NUM];
+extern mmi_result pcba_result[TOTAL_NUM];
+extern mmi_result text_result[TOTAL_NUM];
+extern char name[][TOTAL_NUM];
+extern unsigned int  case_id[TOTAL_NUM];
+/******************phase check*************/
+#define  MAX_SN_LEN  24
+#define SP09_MAX_SN_LEN   MAX_SN_LEN
+#define SP09_MAX_STATION_NUM   15
+#define SP09_MAX_STATION_NAME_LEN   10
+#define SP09_SPPH_MAGIC_NUMBER   0x53503039
+#define SP05_SPPH_MAGIC_NUMBER   0x53503035
+#define SP09_MAX_LAST_DESCRIPTION_LEN   32
+
+#define SN1_START_INDEX   4
+#define SN2_START_INDEX  (SN1_START_INDEX + SP09_MAX_SN_LEN)
+
+#define STATION_START_INDEX   56
+#define TESTFLAG_START_INDEX  252
+#define RESULT_START_INDEX   254
+
+/****************phase check over*************/
 #endif

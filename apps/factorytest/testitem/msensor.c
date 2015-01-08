@@ -262,7 +262,7 @@ int test_msensor_start(void)
 	thread_run=0;
 
 	pthread_join(thead, NULL);
-
+	save_result(CASE_TEST_MSENSOR,ret);
 	return ret;
 }
 

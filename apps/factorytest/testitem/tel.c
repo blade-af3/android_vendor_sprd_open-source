@@ -33,5 +33,6 @@ int test_tel_start(void)
 
 
 	tel_send_at(fd,"ATH",NULL,0, 0);
+	save_result(CASE_TEST_TEL,ret);
 	return ret;
 }

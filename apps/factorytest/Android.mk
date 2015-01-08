@@ -39,7 +39,6 @@ LOCAL_SHARED_LIBRARIES := libsqlite  libbinder libutils libtinyalsa libhardware 
 #libasound libeng_audio_mode
 LOCAL_SRC_FILES := factorytest.c  \
 		eng_tok.c \
-		../engmode/eng_sqlite.c \
 		ui.c \
 		ui_touch.c
 

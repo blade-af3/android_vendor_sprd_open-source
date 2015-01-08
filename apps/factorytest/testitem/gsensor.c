@@ -133,7 +133,7 @@ static void *gsensor_thread(void *param)
 			gr_flip();
 		}
 		usleep(200*1000);
-		if((now_time-start_time)>=10) break;//++++++++++++++++++++
+		if((now_time-start_time)>=20) break;//++++++++++++++++++++
 	}
 
 	gsensor_close(fd);
@@ -176,6 +176,7 @@ int test_gsensor_start(void)
 	}
 	gr_flip();//+++++++++++++++++++++++
 	sleep(1);//++++++++++++++++++++
+	save_result(CASE_TEST_GSENSOR,gsensor_result);
 	return gsensor_result;//++++++++++++++++
 }
 

@@ -40,7 +40,7 @@ enum cmr_flash_status {
 
 static void *sprd_handle_camera_dl;
 
-
+/*
 int test_bcamera_start(void)
 {
 	volatile int  rtn = RL_FAIL;
@@ -49,12 +49,12 @@ int test_bcamera_start(void)
 
 	SPRD_DBG("%s enter", __FUNCTION__);
 
-	ui_clear_rows(0,10);
-	ui_set_color(CL_GREEN);//++++++++++
-	ui_show_text(0, 0, CAMERA_START);//++++++
+	ui_clear_rows(0,20);
+	//ui_set_color(CL_GREEN);//++++++++++
+	//ui_show_text(0, 0, CAMERA_START);//++++++
 	//ui_show_text(3, 0, CAMERA_LIGHT_ON);//++++++
-	gr_flip();
-	sleep(2);
+	//gr_flip();
+	//sleep(2);
 
 
 	property_get("ro.hardware", prop, NULL);
@@ -86,53 +86,29 @@ int test_bcamera_start(void)
 
 
 
-	/*
 
-	typedef int (*pf_eng_test_flashlight_ctrl)(int32_t flash_status);
-	pf_eng_test_flashlight_ctrl eng_test_flashlight_ctrl = (pf_eng_test_flashlight_ctrl)dlsym(sprd_handle_camera_dl,"eng_test_flashlight_ctrl" );
-	if(eng_test_flashlight_ctrl)
-	{
-		if(eng_test_flashlight_ctrl(FLASH_TORCH))
-		{
-			SPRD_DBG("%s fail to open flash light ", __FUNCTION__);
-		}
-	}else{
-		SPRD_DBG("%s fail to find eng_test_flashlight_ctrl() ", __FUNCTION__);
-		rtn = RL_FAIL;
-		goto go_exit;
-	}
-      */
-
+    
 
 
 	SPRD_DBG("%s start preview with Back camera", __FUNCTION__);
 	//eng_draw_handle_softkey(ENG_ITEM_BCAMERA);
-	rtn = ui_handle_button(TEXT_PASS, TEXT_FAIL);//, TEXT_GOBACK
+	rtn = ui_handle_button(NULL, NULL);//, TEXT_GOBACK
 
-	/*if(eng_test_flashlight_ctrl){
-		if(eng_test_flashlight_ctrl(FLASH_CLOSE)){
-			SPRD_DBG("%s grh fail to close flash light ", __FUNCTION__);
-		}
-	}else{
-		SPRD_DBG("%s fail to find eng_test_flashlight_ctrl() ", __FUNCTION__);
-		//rtn = 1;
-		goto go_exit;
-	}*/
+
 
 	typedef void (*pf_eng_test_camera_close)(void);
 	pf_eng_test_camera_close eng_test_camera_close = (pf_eng_test_camera_close)dlsym(sprd_handle_camera_dl,"eng_test_camera_close" );
 	if(eng_test_camera_close)
 	{
-		eng_test_camera_close();   //init back camera and start preview
+		eng_test_camera_close();   
 	}
 	else{
 		SPRD_DBG("%s fail to find eng_test_camera_close ", __FUNCTION__);
-		//rtn = 1;
+
 	}
 
 go_exit:
-//	if(sprd_handle_camera_dl)
-//		dlclose(sprd_handle_camera_dl);
+
 
 	ui_fill_locked();
 	ui_show_title(MENU_TEST_BCAMERA);
@@ -151,15 +127,17 @@ go_exit:
 	}
 	gr_flip();
 	sleep(1);
+	save_result(CASE_TEST_BCAMERA,rtn);
+	save_result(CASE_TEST_FLASH,rtn);
 	return rtn;
 }
 
 
+*/
 
 
 
-
-int test_flash_start(void)
+int test_bcamera_start(void)
 {
 	volatile int  rtn = RL_FAIL;
 	char lib_full_name[60] = { 0 };
@@ -167,12 +145,7 @@ int test_flash_start(void)
 
 	SPRD_DBG("%s enter", __FUNCTION__);
 
-	ui_clear_rows(0,10);
-	ui_set_color(CL_GREEN);//++++++++++
-	//ui_show_text(0, 0, CAMERA_START);//++++++
-	ui_show_text(0, 0, CAMERA_LIGHT_ON);//++++++
-	gr_flip();
-	sleep(2);
+	ui_clear_rows(0,20); 
 
 
 	property_get("ro.hardware", prop, NULL);
@@ -219,7 +192,7 @@ int test_flash_start(void)
 
 	//SPRD_DBG("%s start preview with Back camera", __FUNCTION__);
 	//eng_draw_handle_softkey(ENG_ITEM_BCAMERA);
-	rtn = ui_handle_button(TEXT_PASS, TEXT_FAIL);//, TEXT_GOBACK
+	rtn = ui_handle_button(NULL, NULL);//, TEXT_GOBACK
 
 	if(eng_test_flashlight_ctrl){
 		if(eng_test_flashlight_ctrl(FLASH_CLOSE)){
@@ -238,31 +211,14 @@ int test_flash_start(void)
 		eng_test_camera_close();   //init back camera and start preview
 	}
 	else{
-		SPRD_DBG("%s fail to find eng_test_camera_close ", __FUNCTION__);
-		//rtn = 1;
+		SPRD_DBG("%s fail to find eng_test_camera_close ", __FUNCTION__); 
 	}
 
 go_end:
-//	if(sprd_handle_camera_dl)
-//		dlclose(sprd_handle_camera_dl);
-
-	ui_fill_locked();
-	ui_show_title(MENU_TEST_BCAMERA);
-	if(rtn == RL_FAIL) {
-		ui_set_color(CL_RED);
-		ui_show_text(3, 0, TEXT_TEST_FAIL);
-	}
-	else if(rtn == RL_PASS) {
-		ui_set_color(CL_GREEN);
-		ui_show_text(3, 0, TEXT_TEST_PASS);
-	}
-	else if(rtn==RL_NA)
-	{
-		ui_set_color(CL_WHITE);
-		ui_show_text(3, 0, TEXT_TEST_NA);
-	}
-	gr_flip();
-	sleep(1);
+ 
+  
+	save_result(CASE_TEST_BCAMERA,rtn);
+	save_result(CASE_TEST_FLASH,rtn);
 	return rtn;
 }
 

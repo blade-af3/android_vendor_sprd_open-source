@@ -117,7 +117,11 @@ int test_backlight_start(void)
 	}
 	en_lcd_backlight(lcd_max);
 	en_key_backlight(0);
-	ret = ui_handle_button(TEXT_PASS, TEXT_FAIL);//, TEXT_GOBACK
+	ui_set_color(CL_GREEN);
+    ui_show_text(5, 0, TEXT_BL_OVER);
+    gr_flip();
+
+	ret = ui_handle_button(NULL, NULL);//, TEXT_GOBACK
 	return ret;
 }
 
@@ -145,6 +149,8 @@ int test_vb_bl_start(void)
 	row = ui_show_text(row, 0, TEXT_VIB_FINISH);
 	en_lcd_backlight(lcd_max);
 	en_key_backlight(0);
-	ret = ui_handle_button(TEXT_PASS, TEXT_FAIL);//, TEXT_GOBACK
+	ret = ui_handle_button(NULL, NULL);//, TEXT_GOBACK
+	save_result(CASE_TEST_BACKLIGHT,ret);
+	save_result(CASE_TEST_VIBRATOR,ret);
 	return ret;
 }

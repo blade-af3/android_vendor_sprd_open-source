@@ -59,6 +59,7 @@ static int g_mem_method = USE_PHYSICAL_ADD;/*0: physical address, 1: iommu  addr
 static int fb_fd = -1;
 static struct fb_fix_screeninfo fix;
 static struct fb_var_screeninfo var;
+static int fcamera_bcamera=0;
 
 struct frame_buffer_t {
     uint32_t phys_addr;
@@ -71,7 +72,9 @@ struct frame_buffer_t {
 #define SPRD_MAX_PREVIEW_BUF 		ENGTEST_PREVIEW_BUF_NUM
 static struct frame_buffer_t fb_buf[SPRD_MAX_PREVIEW_BUF+1];
 static uint8_t tmpbuf[SPRD_LCD_WIDTH*SPRD_LCD_HEIGHT*4];
+static uint8_t tmpbuf1[SPRD_LCD_WIDTH*SPRD_LCD_HEIGHT*4];
 static uint32_t post_preview_buf[ENGTEST_PREVIEW_WIDTH*ENGTEST_PREVIEW_WIDTH*2];
+static uint32_t post_preview_buf1[ENGTEST_PREVIEW_WIDTH*ENGTEST_PREVIEW_WIDTH*2];
 static uint32_t rot_buf[ENGTEST_PREVIEW_WIDTH*ENGTEST_PREVIEW_WIDTH*2];
 
 #define RGB565(r,g,b)       ((unsigned short)((((unsigned char)(r)>>3)|((unsigned short)(((unsigned char)(g)>>2))<<5))|(((unsigned short)((unsigned char)(b>>3)))<<11)))
@@ -119,6 +122,32 @@ void RGBRotate90_anticlockwise(uint8_t *des,uint8_t *src,int width,int height, i
 			n+=m;
 		}
 	}
+}
+
+void data_mirror(uint8_t *des,uint8_t *src,int width,int height, int bits)
+{
+    if ((!des)||(!src))
+    {
+        return;
+    }
+
+    int n = 0;
+    int linesize;
+    int i,j;
+    int num;
+    int lineunm;
+    int m = bits/8;
+
+    linesize = width*m;
+
+    for(j=0;j<height;j++)
+    {
+            for(i= 0;i< width;i++)
+            {
+                    memcpy(&des[n],&src[linesize-(i+1)*m+j*linesize],m);
+                    n+=m;
+            }
+    }
 }
 
 
@@ -378,6 +407,8 @@ static int eng_test_fb_open(void)
     fb_buf[2].virt_addr = (uint32_t)tmpbuf;
 	fb_buf[2].length = var.yres * var.xres * (var.bits_per_pixel/8);
 
+    fb_buf[3].virt_addr = (uint32_t)tmpbuf1;
+    fb_buf[3].length = var.yres * var.xres * (var.bits_per_pixel/8);
 
 	for(i=0; i<3; i++){
 		SPRD_DBG("DCAM: buf[%d] virt_addr=0x%x, phys_addr=0x%x, length=%d", \
@@ -483,13 +514,37 @@ static void eng_test_dcam_preview_cb(camera_cb_type cb,
 
 				yuv420_to_rgb(ENGTEST_PREVIEW_WIDTH,ENGTEST_PREVIEW_HEIGHT, cmr_cxt_ptr->preview_virtual_addr[frame->buf_id], \
 					post_preview_buf);
-				StretchColors((void *)(fb_buf[2].virt_addr), var.yres, var.xres, var.bits_per_pixel, \
-					post_preview_buf, ENGTEST_PREVIEW_WIDTH, ENGTEST_PREVIEW_HEIGHT, var.bits_per_pixel);
+				
 
-
-				RGBRotate90_anticlockwise((uint8_t *)(fb_buf[frame->buf_id].virt_addr), (uint8_t *)(fb_buf[2].virt_addr),
+                if(fcamera_bcamera==0)
+                {
+                    StretchColors((void *)(fb_buf[2].virt_addr), var.yres, var.xres, var.bits_per_pixel, \
+                                            post_preview_buf, ENGTEST_PREVIEW_WIDTH, ENGTEST_PREVIEW_HEIGHT, var.bits_per_pixel);
+                    RGBRotate90_anticlockwise((uint8_t *)(fb_buf[frame->buf_id].virt_addr), (uint8_t *)(fb_buf[2].virt_addr),
 					var.yres, var.xres, var.bits_per_pixel);
+                    SPRD_DBG("mmitest i am backcamera");
+                }
+                else
+                {
+                  /*  RGBRotate90_anticlockwise((uint8_t *)post_preview_buf1 ,(uint8_t *)post_preview_buf,
+                                                                     ENGTEST_PREVIEW_HEIGHT, ENGTEST_PREVIEW_WIDTH, var.bits_per_pixel);
+                   */
+                    StretchColors((void *)(fb_buf[2].virt_addr), var.yres, var.xres, var.bits_per_pixel, \
+                                            post_preview_buf, ENGTEST_PREVIEW_WIDTH, ENGTEST_PREVIEW_HEIGHT, var.bits_per_pixel);
+                     data_mirror((uint8_t *)(fb_buf[3].virt_addr), (uint8_t *)(fb_buf[2].virt_addr),
+                                                 var.yres,var.xres, var.bits_per_pixel);
+                     StretchColors((void *)(fb_buf[frame->buf_id].virt_addr), var.xres, var.yres, var.bits_per_pixel, \
+                                              (void *) (fb_buf[3].virt_addr) , var.yres, var.xres, var.bits_per_pixel);
 
+
+                   /* RGBRotate90_anticlockwise((uint8_t *)(fb_buf[2].virt_addr), (uint8_t *)(fb_buf[3].virt_addr),
+                                                                     var.yres, var.xres, var.bits_per_pixel);
+                     RGBRotate90_anticlockwise((uint8_t *)(fb_buf[3].virt_addr), (uint8_t *)(fb_buf[2].virt_addr),
+                                                                                              var.xres, var.yres, var.bits_per_pixel);
+                     RGBRotate90_anticlockwise((uint8_t *)(fb_buf[frame->buf_id].virt_addr), (uint8_t *)(fb_buf[3].virt_addr),
+                                            var.xres, var.yres, var.bits_per_pixel);*/
+                    SPRD_DBG("mmitest i am frontcamera");
+                }
 				eng_test_fb_update(frame->buf_id);
 
 				camera_release_frame(frame->buf_id);
@@ -541,7 +596,10 @@ int eng_test_camera_init(int32_t camera_id)
 	int rtn = 0;
 	struct eng_test_cmr_context *cmr_cxt_ptr = g_eng_test_cmr_cxt_ptr;
 
-
+    if(camera_id==1)
+        fcamera_bcamera=1;
+    else
+        fcamera_bcamera=0;
 	//first open fb for display
 	eng_test_fb_open();
 

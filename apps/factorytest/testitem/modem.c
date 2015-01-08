@@ -9,8 +9,10 @@ static pthread_t  tid_monitor;
 static int s_modem_count = 0;
 
 char s_modem_ver[1024];
-char s_cali_info[512];
-int s_sim_state = 0;
+char s_cali_info[1024];
+int s_sim_state = 2;
+char imei_buf1[128];
+char imei_buf2[128];
 
 /***********************************************************************************/
 #define ENG_BUF_LEN 2048
@@ -370,6 +372,14 @@ modem_init_func(void *arg)
 	s_cali_info[pos] = '\0';
 	LOGD("get cali info[%d]: %s\n", strlen(s_cali_info), s_cali_info);
 
+	if((pos = modem_send_at(modem_fd[0], "AT+CGSN", imei_buf1, sizeof(imei_buf1), 0)) < 0) return NULL;
+
+	imei_buf1[pos] = '\0';
+	LOGD("get cali info[%d]: %s\n", strlen(imei_buf1), imei_buf1);
+if((pos = modem_send_at(modem_fd[1], "AT+CGSN", imei_buf2, sizeof(imei_buf2), 0)) < 0) return NULL;
+
+	imei_buf2[pos] = '\0';
+	LOGD("get cali info[%d]: %s\n", strlen(imei_buf2), imei_buf2);
 	for(i = 0; i < s_modem_count; i++) {
 		if(modem_send_at(modem_fd[i], "AT+EUICC?", tmp, sizeof(tmp), 0) < 0) {
 			sim_state = -1;
@@ -379,7 +389,7 @@ modem_init_func(void *arg)
 			eng_tok_nextint(&ptmp, &sim_state);
 		}
 		LOGD("mmitest get sim%d, state=%d\n", i, sim_state);
-		s_sim_state |= sim_state;
+		s_sim_state &= sim_state;
 	}
 
 	return NULL;
@@ -440,6 +450,7 @@ void* sim_check_thread(void* param)
 		} else {
 			ui_set_color(CL_RED);
 			cur_row = ui_show_text(cur_row, 0, TEXT_FAIL);
+			test_result=0;
 		}
 	}
 	s_sim_state = test_result;
@@ -464,11 +475,14 @@ void* sim_check_thread(void* param)
 
 int test_sim_pretest(void)
 {
-	if(s_sim_state == 0) {
-		return RL_FAIL;
+	int ret;
+	if(s_sim_state == 2) {
+		ret= RL_FAIL;
 	} else {
-		return RL_PASS;
+		ret= RL_PASS;
 	}
+	save_result(CASE_TEST_SIMCARD,ret);
+	return ret;
 }
 
 int test_sim_start(void)
@@ -481,9 +495,10 @@ int test_sim_start(void)
 	ui_show_text(2, 0, TEXT_SIM_SCANING);
 	thread_run = 1;
 	pthread_create(&t, NULL, (void*)sim_check_thread, NULL);
-	ret = ui_handle_button(TEXT_PASS, TEXT_FAIL);
+	ret = ui_handle_button(NULL, NULL);
 	thread_run = 0;
 	pthread_join(t, NULL);
+	save_result(CASE_TEST_SIMCARD,ret);
 	return ret;
 }
 

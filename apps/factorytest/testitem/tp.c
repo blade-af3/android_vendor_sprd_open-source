@@ -392,6 +392,7 @@ int test_tp_start(void)
 	thread_run=0;
 	pthread_join(t, NULL); /* wait "handle key" thread exit. */
 
+	save_result(CASE_TEST_TP,ret);
 	return ret;
 }
 

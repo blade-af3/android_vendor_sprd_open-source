@@ -43,14 +43,17 @@ RW_END:
 int test_sdcard_pretest(void)
 {
 	int fd;
+	int ret;
 	system(SPRD_MOUNT_DEV);
 	fd = open(SPRD_SD_DEV, O_RDWR);
 	if(fd < 0) {
-		return RL_FAIL;
+		ret= RL_FAIL;
 	} else {
 		close(fd);
-		return RL_PASS;
+		ret= RL_PASS;
 	}
+	save_result(CASE_TEST_SDCARD,ret);
+	return ret;
 }
 
 int check_file_exit(void)
@@ -190,5 +193,6 @@ TEST_END:
 	}
 	gr_flip();
 	sleep(1);
+	save_result(CASE_TEST_SDCARD,ret);
 	return ret;
 }

@@ -111,11 +111,14 @@ int test_speaker_start(void)
 	eng_audio_mode   t_mode;
 	ui_fill_locked();
 	ui_show_title(MENU_TEST_SPEAKER);
+	ui_set_color(CL_WHITE);
+	ui_show_text(3, 0, TEXT_SPE_PLAYING);
+	gr_flip();
 	t_mode.mode = SPEAKER;//speaker
 	t_mode.finished = 0;
 
 	pthread_create(&t1, NULL, (void*)playback_thread, (void*)&t_mode);
-	ret = ui_handle_button(TEXT_PASS, TEXT_FAIL);//, TEXT_GOBACK
+	ret = ui_handle_button(NULL, NULL);//, TEXT_GOBACK
 	t_mode.finished =  1;
 	pthread_join(t1, NULL); /* wait "handle key" thread exit. */
 	return ret;

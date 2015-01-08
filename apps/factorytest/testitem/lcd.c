@@ -50,7 +50,8 @@ int test_lcd_start(void)
 	ui_show_text(3, 0, TEXT_FINISH);
 	ui_set_color(CL_GREEN);
 	ui_show_text(4, 0, LCD_TEST_TIPS);//+++++++++++++++++
-	//gr_flip();
-	ret = ui_handle_button(TEXT_PASS, TEXT_FAIL);//, TEXT_GOBACK
+	gr_flip();
+	ret = ui_handle_button(NULL, NULL);//, TEXT_GOBACK
+	save_result(CASE_TEST_LCD,ret);
 	return ret;
 }
