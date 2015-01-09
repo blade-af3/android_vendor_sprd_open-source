@@ -88,8 +88,8 @@ int test_cali_info(void)
 	int ret = 0;
 	int i;
 	int row = 2;
-	char tmp[512][23];
-	char tmp2[512][23];
+	char tmp[64][23];
+	char tmp2[64][23];
 	char* pcur;
 	char* pos1;
 	char* pos2;
@@ -99,6 +99,8 @@ int test_cali_info(void)
 	int cali_size=0;
 	unsigned char chang_page=0;
 	unsigned char change=1;
+    memset(tmp,0,sizeof(tmp));
+    memset(tmp2,0,sizeof(tmp2));
 	ui_fill_locked();
 	ui_show_title(MENU_CALI_INFO);
 	pcur = test_modem_get_caliinfo();

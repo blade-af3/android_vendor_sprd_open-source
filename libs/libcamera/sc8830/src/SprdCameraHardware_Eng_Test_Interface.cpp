@@ -531,9 +531,9 @@ static void eng_test_dcam_preview_cb(camera_cb_type cb,
                    */
                     StretchColors((void *)(fb_buf[2].virt_addr), var.yres, var.xres, var.bits_per_pixel, \
                                             post_preview_buf, ENGTEST_PREVIEW_WIDTH, ENGTEST_PREVIEW_HEIGHT, var.bits_per_pixel);
-                     data_mirror((uint8_t *)(fb_buf[3].virt_addr), (uint8_t *)(fb_buf[2].virt_addr),
+                    data_mirror((uint8_t *)(fb_buf[3].virt_addr), (uint8_t *)(fb_buf[2].virt_addr),
                                                  var.yres,var.xres, var.bits_per_pixel);
-                     StretchColors((void *)(fb_buf[frame->buf_id].virt_addr), var.xres, var.yres, var.bits_per_pixel, \
+                    StretchColors((void *)(fb_buf[frame->buf_id].virt_addr), var.xres, var.yres, var.bits_per_pixel, \
                                               (void *) (fb_buf[3].virt_addr) , var.yres, var.xres, var.bits_per_pixel);
 
 
@@ -541,8 +541,8 @@ static void eng_test_dcam_preview_cb(camera_cb_type cb,
                                                                      var.yres, var.xres, var.bits_per_pixel);
                      RGBRotate90_anticlockwise((uint8_t *)(fb_buf[3].virt_addr), (uint8_t *)(fb_buf[2].virt_addr),
                                                                                               var.xres, var.yres, var.bits_per_pixel);
-                     RGBRotate90_anticlockwise((uint8_t *)(fb_buf[frame->buf_id].virt_addr), (uint8_t *)(fb_buf[3].virt_addr),
-                                            var.xres, var.yres, var.bits_per_pixel);*/
+                     RGBRotate90_anticlockwise((uint8_t *)(fb_buf[frame->buf_id].virt_addr), (uint8_t *)(fb_buf[2].virt_addr),
+                                            var.yres, var.xres, var.bits_per_pixel);*/
                     SPRD_DBG("mmitest i am frontcamera");
                 }
 				eng_test_fb_update(frame->buf_id);

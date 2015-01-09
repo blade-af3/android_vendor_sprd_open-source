@@ -368,8 +368,8 @@ modem_init_func(void *arg)
 	LOGD("get modem version[%d]: %s\n", strlen(s_modem_ver), s_modem_ver);
 
 	if((pos = modem_send_at(modem_fd[0], "AT+SGMR=0,0,3", s_cali_info, sizeof(s_cali_info), 0)) < 0) return NULL;
-
-	s_cali_info[pos] = '\0';
+    strcat(s_cali_info,"BIT");
+	s_cali_info[pos+3] = '\0';
 	LOGD("get cali info[%d]: %s\n", strlen(s_cali_info), s_cali_info);
 
 	if((pos = modem_send_at(modem_fd[0], "AT+CGSN", imei_buf1, sizeof(imei_buf1), 0)) < 0) return NULL;
