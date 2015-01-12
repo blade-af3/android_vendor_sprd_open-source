@@ -372,6 +372,7 @@ modem_init_func(void *arg)
 	s_cali_info[pos+3] = '\0';
 	LOGD("get cali info[%d]: %s\n", strlen(s_cali_info), s_cali_info);
 
+
 	if((pos = modem_send_at(modem_fd[0], "AT+CGSN", imei_buf1, sizeof(imei_buf1), 0)) < 0) return NULL;
 
 	imei_buf1[pos] = '\0';

@@ -82,14 +82,13 @@ int str_replace(char *p_result,char* p_source,char* p_seach,char *p_repstr)
 
 
 extern int text_rows;
-
 int test_cali_info(void)
 {
 	int ret = 0;
 	int i;
 	int row = 2;
-	char tmp[64][23];
-	char tmp2[64][23];
+	char tmp[64][27];
+	char tmp2[64][27];
 	char* pcur;
 	char* pos1;
 	char* pos2;
@@ -126,10 +125,11 @@ int test_cali_info(void)
 		LOGD("mmitest<%s> %d", tmp2,testlen);
 		row_num++;
 	}
+
 if(cali_size<=(text_rows-2))
 	{
 		row=2;
-		for(i=0;i<cali_size;i++)
+		for(i=0;i<row_num;i++)
 		{
 			row = ui_show_text(row, 0, tmp2[i]);
 			gr_flip();
@@ -167,10 +167,10 @@ if(cali_size<=(text_rows-2))
         	gr_fill(0, 0, gr_fb_width(), gr_fb_height());
 			ui_fill_locked();
 			ui_show_title(MENU_CALI_INFO);
-			for(i = 0; i < cali_size+2-text_rows; i++){
+			for(i = 0; i < row_num+2-text_rows; i++){
 				row = ui_show_text(row, 0, tmp2[text_rows-2+i]);
-				gr_flip();
 			}
+			gr_flip();
 			}
 		}while((chang_page=ui_handle_button(NULL,NULL))!=RL_FAIL);
 	}
