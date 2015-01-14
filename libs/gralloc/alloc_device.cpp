@@ -273,9 +273,12 @@ static int gralloc_alloc_buffer(alloc_device_t* dev, size_t size, int usage, buf
             ion_flag = ION_FLAG_CACHED | ION_FLAG_CACHED_NEEDS_SYNC;
         }
 
+        ALOGD("%s: ion_client =  %d size = %d ion_heap_mask =  %d ion_flag = %d\n",
+              __FUNCTION__, m->ion_client, size, ion_heap_mask, ion_flag);
         ret = ion_alloc(m->ion_client, size, 0, ion_heap_mask, ion_flag, &ion_hnd);
         if ( ret != 0)
         {
+            ALOGE("%s: SPRD ret = %d\n",__FUNCTION__, ret);
             AERR("Failed to ion_alloc from ion_client:%d", m->ion_client);
             return -1;
         }
@@ -402,6 +405,7 @@ static int gralloc_alloc_buffer(alloc_device_t* dev, size_t size, int usage, buf
 
 static int gralloc_alloc_framebuffer_locked(alloc_device_t* dev, size_t size, int usage, buffer_handle_t* pHandle)
 {
+    ALOGD("%s: size = %d usage = 0x%x pHandle = 0x%x\n",__FUNCTION__, size, usage, (unsigned int)*pHandle);
 	private_module_t* m = reinterpret_cast<private_module_t*>(dev->common.module);
 
 	// allocate the framebuffer
@@ -424,7 +428,9 @@ static int gralloc_alloc_framebuffer_locked(alloc_device_t* dev, size_t size, in
 		// we return a regular buffer which will be memcpy'ed to the main
 		// screen when post is called.
 		int newUsage = (usage & ~GRALLOC_USAGE_HW_FB) | GRALLOC_USAGE_HW_2D;
+
 		AERR( "fallback to single buffering. Virtual Y-res too small %d", m->info.yres );
+        ALOGD("%s: bufferSize = %d newUsage = 0x%x\n",__FUNCTION__, bufferSize, newUsage);
 		return gralloc_alloc_buffer(dev, bufferSize, newUsage, pHandle);
 	}
 
@@ -547,6 +553,8 @@ static int alloc_device_alloc(alloc_device_t* dev, int w, int h, int format, int
 		default:
 			return -EINVAL;
 		}
+
+        ALOGD("sprd: bpp = %d\n",bpp);
 		size_t bpr = GRALLOC_ALIGN(w * bpp, 8);
 		size = bpr * h;
 		stride = bpr / bpp;
