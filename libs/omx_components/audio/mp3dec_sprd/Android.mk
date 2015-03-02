@@ -22,5 +22,8 @@ LOCAL_SHARED_LIBRARIES := \
 
 LOCAL_MODULE := libstagefright_sprd_mp3dec
 LOCAL_MODULE_TAGS := optional
+ifeq ($(TARGET_BUILD_VARIANT), userdebug)
+        LOCAL_CPPFLAGS += -DDUMP_DEBUG
+endif
 
 include $(BUILD_SHARED_LIBRARY)

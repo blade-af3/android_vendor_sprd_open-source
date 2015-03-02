@@ -904,7 +904,9 @@ void SPRDAVCDecoder::onQueueFilled(OMX_U32 portIndex) {
         uint32 count = 0;
         do {
             if(count >= outQueue.size()) {
+#ifdef DUMP_DEBUG
                 ALOGI("onQueueFilled, get outQueue buffer, return, count=%d, queue_size=%d",count, outQueue.size());
+#endif
                 return;
             }
 
@@ -923,9 +925,11 @@ void SPRDAVCDecoder::onQueueFilled(OMX_U32 portIndex) {
         while(pBufCtrl->iRefCount > 0);
 
 //        ALOGI("%s, %d, mBuffer=0x%x, outHeader=0x%x, iRefCount=%d", __FUNCTION__, __LINE__, *itBuffer, outHeader, pBufCtrl->iRefCount);
+#ifdef DUMP_DEBUG
         ALOGI("%s, %d, outHeader:0x%x, inHeader: 0x%x, len: %d, nOffset: %d, time: %lld, EOS: %d",
               __FUNCTION__, __LINE__,outHeader,inHeader, inHeader->nFilledLen,inHeader->nOffset, inHeader->nTimeStamp,inHeader->nFlags & OMX_BUFFERFLAG_EOS);
 
+#endif
         ++mPicId;
         if (inHeader->nFlags & OMX_BUFFERFLAG_EOS) {
 //bug253058 , the last frame size may be not zero, it need to be decoded.
@@ -1020,8 +1024,10 @@ void SPRDAVCDecoder::onQueueFilled(OMX_U32 portIndex) {
         int64_t start_decode = systemTime();
         MMDecRet decRet = (*mH264DecDecode)(mHandle, &dec_in,&dec_out);
         int64_t end_decode = systemTime();
+#ifdef DUMP_DEBUG
         ALOGI("%s, %d, decRet: %d, %dms, dec_out.frameEffective: %d, needIVOP: %d", __FUNCTION__, __LINE__, decRet, (unsigned int)((end_decode-start_decode) / 1000000L), dec_out.frameEffective, mNeedIVOP);
 
+#endif
         if(iUseAndroidNativeBuffer[OMX_DirOutput]) {
             if(mapper.unlock((const native_handle_t*)outHeader->pBuffer)) {
                 ALOGE("onQueueFilled, mapper.unlock fail %x",outHeader->pBuffer);
@@ -1103,7 +1109,9 @@ void SPRDAVCDecoder::onQueueFilled(OMX_U32 portIndex) {
         while (!outQueue.empty() &&
                 mHeadersDecoded &&
                 dec_out.frameEffective) {
+#ifdef DUMP_DEBUG
             ALOGI("%s, %d, dec_out.pBufferHeader: %0x, dec_out.mPicId: %d", __FUNCTION__, __LINE__, dec_out.pBufferHeader, dec_out.mPicId);
+#endif
             int32_t picId = dec_out.mPicId;//decodedPicture.picId;
             drainOneOutputBuffer(picId, dec_out.pBufferHeader);
             dec_out.frameEffective = false;
@@ -1186,9 +1194,11 @@ void SPRDAVCDecoder::drainOneOutputBuffer(int32_t picId, void* pBufferHeader) {
 
     outHeader->nFilledLen = mPictureSize;
 
+#ifdef DUMP_DEBUG
     ALOGI("%s, %d, outHeader: %0x, outHeader->pBuffer: %0x, outHeader->nOffset: %d, outHeader->nFlags: %d, outHeader->nTimeStamp: %lld",
           __FUNCTION__, __LINE__, outHeader , outHeader->pBuffer, outHeader->nOffset, outHeader->nFlags, outHeader->nTimeStamp);
 
+#endif
 //    LOGI("%s, %d, outHeader->nTimeStamp: %d, outHeader->nFlags: %d, mPictureSize: %d", __FUNCTION__, __LINE__, outHeader->nTimeStamp, outHeader->nFlags, mPictureSize);
 //   LOGI("%s, %d, out: %0x", __FUNCTION__, __LINE__, outHeader->pBuffer + outHeader->nOffset);
 
@@ -1374,8 +1384,10 @@ int SPRDAVCDecoder::VSP_malloc_cb(unsigned int size_extra) {
 
 int SPRDAVCDecoder::VSP_bind_cb(void *pHeader) {
     BufferCtrlStruct *pBufCtrl = (BufferCtrlStruct *)(((OMX_BUFFERHEADERTYPE *)pHeader)->pOutputPortPrivate);
+#ifdef DUMP_DEBUG
     ALOGI("VSP_bind_cb, ref frame: 0x%x, %x; iRefCount=%d",
           ((OMX_BUFFERHEADERTYPE *)pHeader)->pBuffer, pHeader,pBufCtrl->iRefCount);
+#endif
     pBufCtrl->iRefCount++;
     return 0;
 }
@@ -1383,8 +1395,10 @@ int SPRDAVCDecoder::VSP_bind_cb(void *pHeader) {
 int SPRDAVCDecoder::VSP_unbind_cb(void *pHeader) {
     BufferCtrlStruct *pBufCtrl = (BufferCtrlStruct *)(((OMX_BUFFERHEADERTYPE *)pHeader)->pOutputPortPrivate);
 
+#ifdef DUMP_DEBUG
     ALOGI("VSP_unbind_cb, ref frame: 0x%x, %x; iRefCount=%d",
           ((OMX_BUFFERHEADERTYPE *)pHeader)->pBuffer, pHeader,pBufCtrl->iRefCount);
+#endif
 
     if (pBufCtrl->iRefCount  > 0) {
         pBufCtrl->iRefCount--;

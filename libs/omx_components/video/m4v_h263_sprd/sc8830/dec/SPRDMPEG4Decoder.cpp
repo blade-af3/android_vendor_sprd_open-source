@@ -885,7 +885,9 @@ void SPRDMPEG4Decoder::onQueueFilled(OMX_U32 portIndex) {
         uint32 count = 0;
         do {
             if(count >= outQueue.size()) {
+#ifdef DUMP_DEBUG
                 ALOGI("onQueueFilled, get outQueue buffer, return, count=%d, queue_size=%d",count, outQueue.size());
+#endif
                 return;
             }
 
@@ -904,7 +906,9 @@ void SPRDMPEG4Decoder::onQueueFilled(OMX_U32 portIndex) {
         while(pBufCtrl->iRefCount > 0);
 
 //        ALOGI("%s, %d, mBuffer=0x%x, outHeader=0x%x, iRefCount=%d", __FUNCTION__, __LINE__, *itBuffer, outHeader, pBufCtrl->iRefCount);
+#ifdef DUMP_DEBUG
         ALOGI("%s, %d, outHeader:0x%x, inHeader: 0x%x, len: %d, time: %lld, EOS: %d", __FUNCTION__, __LINE__,outHeader, inHeader, inHeader->nFilledLen,inHeader->nTimeStamp,inHeader->nFlags & OMX_BUFFERFLAG_EOS);
+#endif
         if (inHeader->nFlags & OMX_BUFFERFLAG_EOS) {
             mEOSStatus = INPUT_EOS_SEEN; //the last frame size may be not zero, it need to be decoded.
         }
@@ -1073,9 +1077,11 @@ void SPRDMPEG4Decoder::onQueueFilled(OMX_U32 portIndex) {
         int64_t start_decode = systemTime();
         MMDecRet decRet =	(*mMP4DecDecode)( mHandle, &dec_in,&dec_out);
         int64_t end_decode = systemTime();
+#ifdef DUMP_DEBUG
         ALOGI("%s, %d, decRet: %d, %dms, frameEffective: %d, pOutFrameY: %0x, pBufferHeader: %0x, needIVOP: %d, error_flag: %0x",
               __FUNCTION__, __LINE__, decRet, (unsigned int)((end_decode-start_decode) / 1000000L),dec_out.frameEffective, dec_out.pOutFrameY, dec_out.pBufferHeader,mNeedIVOP, mHandle->g_mpeg4_dec_err_flag);
 
+#endif
         if(iUseAndroidNativeBuffer[OMX_DirOutput]) {
             if(mapper.unlock((const native_handle_t*)outHeader->pBuffer)) {
                 ALOGE("onQueueFilled, mapper.unlock fail %x",outHeader->pBuffer);
@@ -1429,8 +1435,10 @@ int SPRDMPEG4Decoder::extMemoryAlloc(unsigned int extra_mem_size) {
 
 int SPRDMPEG4Decoder::VSP_bind_cb(void *pHeader,int flag) {
     BufferCtrlStruct *pBufCtrl = (BufferCtrlStruct *)(((OMX_BUFFERHEADERTYPE *)pHeader)->pOutputPortPrivate);
+#ifdef DUMP_DEBUG
     ALOGI("VSP_bind_cb, ref frame: 0x%x, 0x%x; iRefCount=%d",
           ((OMX_BUFFERHEADERTYPE *)pHeader)->pBuffer, pHeader,pBufCtrl->iRefCount);
+#endif
     pBufCtrl->iRefCount++;
     return 0;
 }
@@ -1438,9 +1446,11 @@ int SPRDMPEG4Decoder::VSP_bind_cb(void *pHeader,int flag) {
 int SPRDMPEG4Decoder::VSP_unbind_cb(void *pHeader,int flag) {
     BufferCtrlStruct *pBufCtrl = (BufferCtrlStruct *)(((OMX_BUFFERHEADERTYPE *)pHeader)->pOutputPortPrivate);
 
+#ifdef DUMP_DEBUG
     ALOGI("VSP_unbind_cb, ref frame: 0x%x, 0x%x; iRefCount=%d",
           ((OMX_BUFFERHEADERTYPE *)pHeader)->pBuffer, pHeader,pBufCtrl->iRefCount);
 
+#endif
     if (pBufCtrl->iRefCount  > 0) {
         pBufCtrl->iRefCount--;
     }

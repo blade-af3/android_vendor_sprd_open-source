@@ -561,7 +561,9 @@ void SPRDMP3Decoder::onQueueFilled(OMX_U32 portIndex) {
         }
 
         if (numOutBytes <= outHeader->nOffset) {
+#ifdef DUMP_DEBUG
             ALOGI("onQueueFilled, numOutBytes:%d <= outHeader->nOffset:%ld, continue", numOutBytes, outHeader->nOffset);
+#endif
             continue;
         }
 
