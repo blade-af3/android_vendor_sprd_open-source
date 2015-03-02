@@ -39,11 +39,19 @@ extern "C"
 #define DEBUG_STR     "L %d, %s: "
 #define DEBUG_ARGS    __LINE__,__FUNCTION__
 
+#ifdef DUMP_DEBUG
 #define CMR_LOGE(format,...) ALOGE(DEBUG_STR format, DEBUG_ARGS, ##__VA_ARGS__)
 #define CMR_LOGW(format,...) ALOGW(DEBUG_STR format, DEBUG_ARGS, ##__VA_ARGS__)
 #define CMR_LOGI(format,...) ALOGI(DEBUG_STR format, DEBUG_ARGS, ##__VA_ARGS__)
 #define CMR_LOGD(format,...) ALOGD(DEBUG_STR format, DEBUG_ARGS, ##__VA_ARGS__)
 #define CMR_LOGV(format,...) ALOGV(DEBUG_STR format, DEBUG_ARGS, ##__VA_ARGS__)
+#else
+#define CMR_LOGE(format,...)
+#define CMR_LOGW(format,...)
+#define CMR_LOGI(format,...)
+#define CMR_LOGD(format,...)
+#define CMR_LOGV(format,...)
+#endif
 
 #define CMR_EVT_V4L2_BASE                  (1 << 16)
 #define CMR_EVT_CVT_BASE                   (1 << 17)

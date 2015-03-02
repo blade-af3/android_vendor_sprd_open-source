@@ -234,6 +234,10 @@ ifeq ($(strip $(TARGET_BOARD_CAMERA_X3542)),true)
 LOCAL_CFLAGS += -DCONFIG_CAMERA_X3542
 endif
 
+ifeq ($(TARGET_BUILD_VARIANT), userdebug)
+        LOCAL_CFLAGS += -DDUMP_DEBUG
+endif
+
 ifeq ($(strip $(TARGET_BOARD_CAMERA_HAL_VERSION)),HAL1.0)
 LOCAL_MODULE := camera.$(TARGET_BOARD_PLATFORM)
 else

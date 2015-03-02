@@ -45,11 +45,19 @@ namespace android {
 
 /**********************Macro Define**********************/
 #define STOP_PREVIEW_BEFORE_CAPTURE 0
+#ifdef DUMP_DEBUG
 #define LOGV ALOGV
 #define LOGE ALOGE
 #define LOGI ALOGI
 #define LOGW ALOGW
 #define LOGD ALOGD
+#else
+#define LOGV
+#define LOGE
+#define LOGI
+#define LOGW
+#define LOGD
+#endif
 #define PRINT_TIME 0
 #define ROUND_TO_PAGE(x) (((x)+0xfff)&~0xfff)
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof(*x))

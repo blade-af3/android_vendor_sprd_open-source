@@ -23,11 +23,19 @@
 namespace android {
 
 /*#define LOG_TAG "SprdCameraParameters"*/
+#ifdef DUMP_DEBUG
 #define LOGV ALOGD
 #define LOGE ALOGE
 #define LOGI ALOGI
 #define LOGW ALOGW
 #define LOGD ALOGD
+#else
+#define LOGV
+#define LOGE
+#define LOGI
+#define LOGW
+#define LOGD
+#endif
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
 #define SIZE_ALIGN_16(x) (((x)+15)&(~15))
 
