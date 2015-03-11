@@ -3776,12 +3776,12 @@ void camera_v4l2_evt_cb(int evt, void* data)
 
 	if ((V4L2_IDLE == g_cxt->v4l2_cxt.v4l2_state) || (1 == info->free)) {
 		if (CMR_V4L2_TX_DONE == evt) {
-			if (CHN_1 == info->channel_id && 0 == g_cxt->pre_frm_cnt) {
+			/*if (CHN_1 == info->channel_id && 0 == g_cxt->pre_frm_cnt) {
 				memset(&cb_info, 0, sizeof(camera_cb_info));
 				cb_info.cb_type = CAMERA_RSP_CB_SUCCESS;
 				cb_info.cb_func = CAMERA_FUNC_START_PREVIEW;
 				camera_callback_start(&cb_info);
-			}
+			}*/
 			CMR_LOGW("Wrong status, %d free frame %d 0x%x",
 				g_cxt->v4l2_cxt.v4l2_state,
 				info->channel_id,
@@ -3830,6 +3830,7 @@ void camera_v4l2_evt_cb(int evt, void* data)
 				cb_info.cb_type = CAMERA_RSP_CB_SUCCESS;
 				cb_info.cb_func = CAMERA_FUNC_START_PREVIEW;
 				camera_callback_start(&cb_info);
+				usleep(50*1000);
 			}
 		} else if ((CHN_BUSY == g_cxt->chn_2_status) &&
 			(CHN_2 == info->channel_id)) {
