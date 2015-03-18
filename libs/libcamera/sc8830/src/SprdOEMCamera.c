@@ -5581,6 +5581,8 @@ int camera_get_sensor_capture_mode(struct img_size* target_size, uint32_t *work_
 		}
 	}
 
+	if(last_mode>2)
+		last_mode=2;
 	if (i == SENSOR_MODE_MAX) {
 		CMR_LOGI("can't find the right mode, use last available mode %d", last_mode);
 		i = last_mode;

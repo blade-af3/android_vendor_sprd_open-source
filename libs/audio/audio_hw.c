@@ -681,8 +681,9 @@ int i2s_pin_mux_sel(struct tiny_audio_device *adev, int type)
     uint8_t cur_state[2] = {0};
     uint8_t *ctl_str = "1";
 
+#ifdef DUMP_DEBUG
     ALOGW("i2s_pin_mux_sel in type is %d",type);
-
+#endif
     modem = adev->cp;
 
     if(modem->i2s_bt.fd_sys_cp0 < 0) {
@@ -834,7 +835,9 @@ static int out_dump_create(FILE **out_fd, const char *path)
         ALOGE("cannot create file.");
         return -1;
     }
+#ifdef DUMP_DEBUG
     ALOGI("path %s created successfully.", path);
+#endif
     return 0;
 }
 
@@ -949,8 +952,10 @@ static int set_route_by_array(struct mixer *mixer, struct route_setting *route,
                 ALOGE("Failed to set '%s' to '%s'\n",
                         route[i].ctl_name, route[i].strval);
             } else {
+                #ifdef DUMP_DEBUG
                 ALOGI("Set '%s' to '%s'\n",
                         route[i].ctl_name, route[i].strval);
+                #endif
             }
         } else {
             /* This ensures multiple (i.e. stereo) values are set jointly */
@@ -960,8 +965,10 @@ static int set_route_by_array(struct mixer *mixer, struct route_setting *route,
                     ALOGE("Failed to set '%s'.%d to %d\n",
                             route[i].ctl_name, j, route[i].intval);
                 } else {
+                    #ifdef DUMP_DEBUG
                     ALOGI("Set '%s'.%d to %d\n",
                             route[i].ctl_name, j, route[i].intval);
+                    #endif
                 }
             }
         }
@@ -977,10 +984,14 @@ static void do_select_devices(struct tiny_audio_device *adev)
 
     if(adev->voip_state) {
         int ret;
+        #ifdef DUMP_DEBUG
         ALOGI("do_select_devices  in %x,but voip is on so send at to cp in",adev->out_devices);
+        #endif
         ret = at_cmd_route(adev);  //send at command to cp
+        #ifdef DUMP_DEBUG
         ALOGI("do_select_devices in %x,but voip is on so send at to cp out ret is %d",adev->out_devices,
 ret);
+        #endif
         if (ret < 0) {
             ALOGE("do_seletc devices at_cmd_route error(%d) ",ret);
         }
@@ -999,10 +1010,12 @@ ret);
                 adev->prev_out_devices, adev->prev_in_devices);
         return;
     }
+    #ifdef DUMP_DEBUG
     ALOGI("Changing out_devices: from (0x%08x) to (0x%08x)",
             adev->prev_out_devices, adev->out_devices);
     ALOGI("Changing in_devices: from (0x%08x) to (0x%08x)",
             adev->prev_in_devices, adev->in_devices);
+    #endif
     adev->prev_out_devices = adev->out_devices;
     adev->prev_in_devices = adev->in_devices;
     if(adev->eq_available)
@@ -1112,9 +1125,13 @@ ret);
 
 static void select_devices_signal(struct tiny_audio_device *adev)
 {
+    #ifdef DUMP_DEBUG
     ALOGI("select_devices_signal starting...");
+    #endif
     sem_post(&adev->routing_mgr.device_switch_sem);
+    #ifdef DUMP_DEBUG
     ALOGI("select_devices_signal finished.");
+    #endif
 }
 
 static int start_call(struct tiny_audio_device *adev)
@@ -1518,8 +1535,9 @@ static int start_output_stream(struct tiny_stream_out *out)
     int ret=0;
 
     adev->active_output = out;
+    #ifdef DUMP_DEBUG
     ALOGD("start output stream out->is_voip is %d, in",out->is_voip);
-
+    #endif
     if (!adev->call_start && adev->voip_state == 0) {
         /* FIXME: only works if only one output can be active at a time*/
         adev->out_devices &= (~AUDIO_DEVICE_OUT_ALL);
@@ -1695,7 +1713,9 @@ static int out_set_format(struct audio_stream *stream, audio_format_t format)
 static int do_output_standby(struct tiny_stream_out *out)
 {
     struct tiny_audio_device *adev = out->dev;
+    #ifdef DUMP_DEBUG
     ALOGD("do_output_standby in");
+    #endif
     if (!out->standby) {
         if (out->pcm) {
             pcm_close(out->pcm);
@@ -1783,7 +1803,9 @@ static int do_output_standby(struct tiny_stream_out *out)
         out->standby = 1;
     }
     adev->active_output = NULL;
+    #ifdef DUMP_DEBUG
     ALOGD("do_output_standby in out");
+    #endif
     return 0;
 }
 

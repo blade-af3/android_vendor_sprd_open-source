@@ -59,7 +59,9 @@ status_t AudioPolicyManagerSPRD::startOutput(audio_io_handle_t output,
                                              AudioSystem::stream_type stream,
                                              int session)
 {
+    #ifdef DUMP_DEBUG
     ALOGD("startOutput() output %d, stream %d, session %d", output, stream, session);
+    #endif
     ssize_t index = mOutputs.indexOfKey(output);
     if (index < 0) {
         ALOGW("startOutput() unknow output %d", output);
@@ -72,11 +74,15 @@ status_t AudioPolicyManagerSPRD::startOutput(audio_io_handle_t output,
     // NOTE that the usage count is the same for duplicated output and hardware output which is
     // necessary for a correct control of hardware output routing by startOutput() and stopOutput()
     outputDesc->changeRefCount(stream, 1);
+    #ifdef DUMP_DEBUG
 	ALOGD("startOutput() is_voip_set %d,stream %d,",is_voip_set,stream);
+    #endif
 	if((!is_voip_set)&&(stream == AudioSystem::VOICE_CALL)) {
 		for (size_t i = 0; i < mOutputs.size(); i++) {
 		    AudioOutputDescriptor *outputDesc = mOutputs.valueAt(i);
+            #ifdef DUMP_DEBUG
 			ALOGD("startOutput() outputDesc->mRefCount[AudioSystem::VOICE_CALL] %d",outputDesc->mRefCount[AudioSystem::VOICE_CALL]);
+            #endif
 			if(outputDesc->mRefCount[AudioSystem::VOICE_CALL] == 1) {
                 AudioParameter param;
                 param.add(String8("sprd_voip_start"), String8("true"));
@@ -145,7 +151,9 @@ status_t AudioPolicyManagerSPRD::stopOutput(audio_io_handle_t output,
                                             AudioSystem::stream_type stream,
                                             int session)
 {
+#ifdef DUMP_DEBUG
     ALOGD("stopOutput() output %d, stream %d, session %d", output, stream, session);
+#endif
     ssize_t index = mOutputs.indexOfKey(output);
     if (index < 0) {
         ALOGW("stopOutput() unknow output %d", output);
@@ -159,11 +167,15 @@ status_t AudioPolicyManagerSPRD::stopOutput(audio_io_handle_t output,
         handleIncallSonification(stream, false, false);
     }
 
+    #ifdef DUMP_DEBUG
 	ALOGD("stopOutput() is_voip_set %d,stream %d,output size %d",is_voip_set,stream,mOutputs.size());
+    #endif
 		if(is_voip_set &&(stream == AudioSystem::VOICE_CALL)) {
 			for (size_t i = 0; i < mOutputs.size(); i++) {
 				AudioOutputDescriptor *outputDesc = mOutputs.valueAt(i);
+                #ifdef DUMP_DEBUG
 				ALOGD("stopOutput() outputDesc->mRefCount[AudioSystem::VOICE_CALL] %d",outputDesc->mRefCount[AudioSystem::VOICE_CALL]);
+                #endif
 				if(outputDesc->mRefCount[AudioSystem::VOICE_CALL] == 1) {
 					AudioParameter param;
 					param.add(String8("sprd_voip_start"), String8("false"));
@@ -214,7 +226,9 @@ status_t AudioPolicyManagerSPRD::stopOutput(audio_io_handle_t output,
 
 void AudioPolicyManagerSPRD::releaseOutput(audio_io_handle_t output)
 {
+    #ifdef DUMP_DEBUG
     ALOGD("releaseOutput() %d", output);
+    #endif
     ssize_t index = mOutputs.indexOfKey(output);
     if (index < 0) {
         ALOGW("releaseOutput() releasing unknown output %d", output);

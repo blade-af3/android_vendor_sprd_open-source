@@ -45,6 +45,9 @@ else
 LOCAL_CFLAGS += -DVOIP_DSP_PROCESS
 endif
 
+ifeq ($(TARGET_BUILD_VARIANT), userdebug)
+        LOCAL_CFLAGS += -DDUMP_DEBUG
+endif
 
 LOCAL_C_INCLUDES += \
 	external/tinyalsa/include \

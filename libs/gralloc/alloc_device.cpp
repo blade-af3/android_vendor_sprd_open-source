@@ -272,9 +272,10 @@ static int gralloc_alloc_buffer(alloc_device_t* dev, size_t size, int usage, buf
         {
             ion_flag = ION_FLAG_CACHED | ION_FLAG_CACHED_NEEDS_SYNC;
         }
-
+        #ifdef DUMP_DEBUG
         ALOGD("%s: ion_client =  %d size = %d ion_heap_mask =  %d ion_flag = %d\n",
               __FUNCTION__, m->ion_client, size, ion_heap_mask, ion_flag);
+        #endif
         ret = ion_alloc(m->ion_client, size, 0, ion_heap_mask, ion_flag, &ion_hnd);
         if ( ret != 0)
         {
@@ -308,7 +309,9 @@ static int gralloc_alloc_buffer(alloc_device_t* dev, size_t size, int usage, buf
             {
                 hnd->flags=(private_handle_t::PRIV_FLAGS_USES_ION)|(private_handle_t::PRIV_FLAGS_USES_PHY);
             }
+            #ifdef DUMP_DEBUG
             ALOGD("the flag 0x%x and the vadress is 0x%x and the size is 0x%x",hnd->flags,(int)cpu_ptr,size);
+            #endif
             hnd->share_fd = shared_fd;
             hnd->ion_hnd = ion_hnd;
             hnd->ion_client = m->ion_client;
@@ -405,7 +408,9 @@ static int gralloc_alloc_buffer(alloc_device_t* dev, size_t size, int usage, buf
 
 static int gralloc_alloc_framebuffer_locked(alloc_device_t* dev, size_t size, int usage, buffer_handle_t* pHandle)
 {
+    #ifdef DUMP_DEBUG
     ALOGD("%s: size = %d usage = 0x%x pHandle = 0x%x\n",__FUNCTION__, size, usage, (unsigned int)*pHandle);
+    #endif
 	private_module_t* m = reinterpret_cast<private_module_t*>(dev->common.module);
 
 	// allocate the framebuffer
@@ -430,7 +435,9 @@ static int gralloc_alloc_framebuffer_locked(alloc_device_t* dev, size_t size, in
 		int newUsage = (usage & ~GRALLOC_USAGE_HW_FB) | GRALLOC_USAGE_HW_2D;
 
 		AERR( "fallback to single buffering. Virtual Y-res too small %d", m->info.yres );
+        #ifdef DUMP_DEBUG
         ALOGD("%s: bufferSize = %d newUsage = 0x%x\n",__FUNCTION__, bufferSize, newUsage);
+        #endif
 		return gralloc_alloc_buffer(dev, bufferSize, newUsage, pHandle);
 	}
 
@@ -498,7 +505,9 @@ static int gralloc_alloc_framebuffer(alloc_device_t* dev, size_t size, int usage
 
 static int alloc_device_alloc(alloc_device_t* dev, int w, int h, int format, int usage, buffer_handle_t* pHandle, int* pStride)
 {
+    #ifdef DUMP_DEBUG
 	ALOGD("%s w:%d, h:%d, format:%d usage:0x%x start",__FUNCTION__,w,h,format,usage);
+    #endif
 	if (!pHandle || !pStride)
 	{
 		return -EINVAL;
@@ -554,7 +563,9 @@ static int alloc_device_alloc(alloc_device_t* dev, int w, int h, int format, int
 			return -EINVAL;
 		}
 
+        #ifdef DUMP_DEBUG
         ALOGD("sprd: bpp = %d\n",bpp);
+        #endif
 		size_t bpr = GRALLOC_ALIGN(w * bpp, 8);
 		size = bpr * h;
 		stride = bpr / bpp;
@@ -622,7 +633,9 @@ AllocNormalBuffer:
 		}
 	}
 
+    #ifdef DUMP_DEBUG
 	ALOGD("%s handle:0x%x end err is %d",__FUNCTION__,(unsigned int)*pHandle,err);
+    #endif
 	if (err < 0)
 	{
 		return err;
@@ -668,16 +681,19 @@ AllocNormalBuffer:
 
 static int alloc_device_free(alloc_device_t* dev, buffer_handle_t handle)
 {
+    #ifdef DUMP_DEBUG
 	ALOGD("%s buffer_handle_t:0x%x start",__FUNCTION__,(unsigned int)handle);
+    #endif
 	if (private_handle_t::validate(handle) < 0)
 	{
 		return -EINVAL;
 	}
 
 	private_handle_t const* hnd = reinterpret_cast<private_handle_t const*>(handle);
+    #ifdef DUMP_DEBUG
 	ALOGD("%s buffer_handle_t:0x%x flags:0x%x  start",__FUNCTION__,(unsigned int)handle,hnd->flags);
+    #endif
 		//LOGD("unmapping from %p, size=%d", base, size);
-
 				// we can't deallocate the memory in case of UNMAP failure
 				// because it would give that process access to someone else's
 				// surfaces, which would be a security breach.
@@ -749,7 +765,9 @@ static int alloc_device_free(alloc_device_t* dev, buffer_handle_t handle)
 		/* Buffer might be unregistered so we need to check for invalid ump handle*/
 		if ( 0 != hnd->base )
 		{
+            #ifdef DUMP_DEBUG
 			ALOGD("%s the vadress 0x%x size of 0x%x will be free",__FUNCTION__,hnd->base,hnd->size);
+            #endif
 			if ( 0 != munmap( (void*)hnd->base, hnd->size ) ) AERR( "Failed to munmap handle 0x%x", (unsigned int)hnd );
 		}
 		close( hnd->share_fd );
@@ -763,7 +781,9 @@ static int alloc_device_free(alloc_device_t* dev, buffer_handle_t handle)
 
 	delete hnd;
 
+    #ifdef DUMP_DEBUG
 	ALOGD("%s end",__FUNCTION__);
+    #endif
 	return 0;
 }
 

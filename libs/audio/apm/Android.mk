@@ -11,6 +11,10 @@ include $(CLEAR_VARS)
 
   LOCAL_CFLAGS := -D_POSIX_SOURCE
 
+ifeq ($(TARGET_BUILD_VARIANT), userdebug)
+        LOCAL_CFLAGS += -DDUMP_DEBUG
+endif
+
   LOCAL_SRC_FILES := AudioPolicyManagerSPRD.cpp
 
   LOCAL_MODULE := libaudiopolicy

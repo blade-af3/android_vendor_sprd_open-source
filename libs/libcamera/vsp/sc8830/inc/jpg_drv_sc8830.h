@@ -37,7 +37,11 @@ extern "C"
 #ifdef _VSP_LINUX_
 #define LOG_TAG "JPG"
 #include <utils/Log.h>
+#ifdef DUMP_DEBUG
 #define  SCI_TRACE_LOW   ALOGE
+#else
+#define SCI_TRACE_LOW(x,...)
+#endif
 #define SCI_MEMSET  memset
 #define SCI_MEMCPY	memcpy
 #define SCI_ASSERT(...) 

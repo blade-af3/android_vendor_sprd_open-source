@@ -60,6 +60,10 @@ LOCAL_CFLAGS:= -DLOG_TAG=\"gralloc.$(TARGET_BOARD_PLATFORM)\"
 
 endif
 
+ifeq ($(TARGET_BUILD_VARIANT), userdebug)
+        LOCAL_CFLAGS += -DDUMP_DEBUG
+endif
+
 ifeq ($(strip $(TARGET_BOARD_PLATFORM)),sc8830)
 	LOCAL_CFLAGS += -DUSE_3_FRAMEBUFFER
 endif

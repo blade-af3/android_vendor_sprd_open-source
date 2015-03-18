@@ -368,7 +368,9 @@ static void audio_pga_set(struct mixer_ctl *ctl, int value,
 	if (attribute_item->inverse) {
 		value = attribute_item->max - value;
 	}
+#ifdef DUMP_DEBUG
 	ALOGI("'%s' set to %d", mixer_ctl_get_name_d(ctl), value);
+#endif
 	audio_pga_mixer_set(ctl, value);
 }
 

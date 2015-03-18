@@ -355,6 +355,7 @@ SprdCameraHardware::SprdCameraHardware(int cameraId)
 
 SprdCameraHardware::~SprdCameraHardware()
 {
+	freeCaptureMem();
 	LOGI("closeCameraHardware: E cameraId: %d.", mCameraId);
 	if (!mReleaseFLag) {
 		release();
@@ -3103,16 +3104,19 @@ bool SprdCameraHardware::allocateCaptureMem(bool initJpegHeap)
 	buffer_size = camera_get_size_align_page(mRawHeapSize);
 	LOGI("allocateCaptureMem:mRawHeap align size = %d . count %d ",buffer_size, kRawBufferCount);
 	{
-		Mutex::Autolock cbufl(&mCapBufLock);
-		mRawHeap = allocCameraMem(buffer_size, kRawBufferCount, true);
-		if (NULL == mRawHeap) {
-			LOGE("allocateCaptureMem: error mRawHeap is null.");
-			goto allocate_capture_mem_failed;
-		}
+		if(mRawHeap==NULL)
+		{
+			Mutex::Autolock cbufl(&mCapBufLock);
+			mRawHeap = allocCameraMem(buffer_size, kRawBufferCount, true);
+			if (NULL == mRawHeap) {
+				LOGE("allocateCaptureMem: error mRawHeap is null.");
+				goto allocate_capture_mem_failed;
+			}
 
-		if (NULL == mRawHeap->handle) {
-			LOGE("allocateCaptureMem: error handle is null.");
-			goto allocate_capture_mem_failed;
+			if (NULL == mRawHeap->handle) {
+				LOGE("allocateCaptureMem: error handle is null.");
+				goto allocate_capture_mem_failed;
+			}
 		}
 		mCapBufIsAvail = 1;
 	}
@@ -3237,7 +3241,7 @@ bool SprdCameraHardware::initCapture(bool initJpegHeap)
 
 void SprdCameraHardware::deinitCapture()
 {
-	freeCaptureMem();
+//	freeCaptureMem();
 	camera_set_capture_trace(0);
 }
 
@@ -3300,14 +3304,14 @@ status_t SprdCameraHardware::set_ddr_freq(uint32_t mhzVal)
 			break;
 	}
 
-	fclose(fp);
+	/*fclose(fp);
 	fp = NULL;
 
 	fp = fopen(set_freq, "wb");
 	if (NULL == fp) {
 		LOGE("set_ddr_freq Failed to open %s X", set_freq);
 		return BAD_VALUE;
-	}
+	}*/
 
 	fprintf(fp, "%s", freq_in_khz);
 	mSetDDRFreq = mhzVal;
