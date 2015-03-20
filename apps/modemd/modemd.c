@@ -419,7 +419,7 @@ static void *modemd_listenaccept_thread(void *par)
 		MODEMD_LOGD("%s: Waiting for new connect ...", __FUNCTION__);
 		if ( (n=accept(sfd,NULL,NULL)) == -1)
 		{
-			MODEMD_LOGE("engserver accept error\n");
+			MODEMD_LOGE("engserver accept error: %s\n",strerror(errno));
 			continue;
 		}
 
