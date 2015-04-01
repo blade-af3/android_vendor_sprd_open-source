@@ -435,6 +435,7 @@ static void *modemd_listenaccept_thread(void *par)
 			if(i == MAX_CLIENT_NUM - 1) {
 				MODEMD_LOGD("%s: client array is full, just fill %d to client[%d]",
 						__FUNCTION__, n, i);
+				close(client_fd[i]);
 				client_fd[i]=n;
 			}
 		}
@@ -595,6 +596,7 @@ static void *modemd_engcontrol_thread(void *par)
 			if(i == MAX_CLIENT_NUM - 1) {
 				MODEMD_LOGD("%s: client array is full, just fill %d to client[%d]",
 						__FUNCTION__, n, i);
+				close(engpc_client_fd[i]);
 				engpc_client_fd[i]=n;
 			       write(notifypipe[1], "0", 2);
                            break;
