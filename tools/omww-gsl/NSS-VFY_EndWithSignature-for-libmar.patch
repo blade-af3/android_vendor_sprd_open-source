@@ -1,0 +1,23 @@
+From b74772b4a736566e9e2dc9bf3bb463df442a4319 Mon Sep 17 00:00:00 2001
+From: Rex Hung <rhung@mozilla.com>
+Date: Tue, 24 Mar 2015 10:20:21 +0800
+Subject: [PATCH] Export the symbol of VFY_EndWithSignature for libmar
+
+---
+ config/external/nss/nss.def | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/config/external/nss/nss.def b/config/external/nss/nss.def
+index c333bcd..feac941 100644
+--- a/config/external/nss/nss.def
++++ b/config/external/nss/nss.def
+@@ -681,5 +681,6 @@ VFY_Update
+ VFY_VerifyData
+ VFY_VerifyDataWithAlgorithmID
+ VFY_VerifyDigestDirect
++VFY_EndWithSignature
+ _SGN_VerifyPKCS1DigestInfo
+ PK11_PQG_ParamGenV2
+-- 
+1.9.1
+
