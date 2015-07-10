@@ -59,10 +59,9 @@ LOCAL_C_INCLUDES := \
           external/zlib \
           gecko/security/nss/lib/nss/ \
           gecko/security/nss/lib/util/ \
-          gaia/xulrunner-sdk-26/xulrunner-sdk/include/nspr/ \
           $(LOCAL_PATH)/libmar/src/ \
-          objdir-gecko/dist/include/ \
-          objdir-gecko/dist/include/nspr/ \
+          gaia/xulrunner-sdk-33/xulrunner-sdk/include/nspr/ \
+          gaia/xulrunner-sdk-33/xulrunner-sdk/include/ \
 
 include $(BUILD_EXECUTABLE)
 
