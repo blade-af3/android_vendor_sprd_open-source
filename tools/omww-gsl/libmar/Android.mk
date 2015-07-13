@@ -28,8 +28,8 @@ LOCAL_C_INCLUDES := \
           gecko/security/nss/lib/freebl/ \
           gecko/security/nss/lib/freebl/ecl \
           gecko/security/nss/lib/smime/ \
-          gaia/xulrunner-sdk-33/xulrunner-sdk/include/ \
-          gaia/xulrunner-sdk-33/xulrunner-sdk/include/nspr/ \
+          $(LOCAL_PATH)/../include/ \
+          $(LOCAL_PATH)/../include/nspr/ \
 
 LOCAL_C_INCLUDES += \
           $(LOCAL_PATH)/src/ \

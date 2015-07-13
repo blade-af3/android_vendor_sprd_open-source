@@ -94,7 +94,7 @@
 #define INSTALLER_FAILURE           1
 #define INSTALLER_REVERTED          2
 
-#define INSTALLER_STATUS_FILE      "/storage/sdcard0/acl_install.status"
+#define DEFAULT_INSTALLER_STATUS_FILE      "/storage/sdcard/acl_install.status"
 
 #define APPLICATION_ZIP_FILE       "application.zip"
 
@@ -157,6 +157,47 @@ failure:
     close(sock);
 }
 
+// Replace all instances of 'c1' in string 's' with 'c2'
+static void replace_char(char *s, char c1, char c2)
+{
+    int i;
+    for(i = 0; s[i]; i++) {
+        if (s[i] == c1) {
+            s[i] = c2;
+        }
+    }
+}
+
+static void update_properties() {
+    char device[PROPERTY_VALUE_MAX] = {'\0'};
+    char model[PROPERTY_VALUE_MAX] = {'\0'};
+    char product[PROPERTY_VALUE_MAX] = {'\0'};
+    char aclversion[PROPERTY_VALUE_MAX] = {'\0'};
+    char fullversion[PROPERTY_VALUE_MAX] = {'\0'};
+
+    property_set(PROP_GSL_VERSION, GSL_VERSION);
+
+    property_get(PROP_PRODUCT_NAME,   product, NULL);
+    property_get(PROP_PRODUCT_DEVICE, device, NULL);
+    property_get(PROP_PRODUCT_MODEL,  model, NULL);
+    property_get(PROP_ACL_VERSION, aclversion, NULL);
+    replace_char(product, ';', ' ');
+    replace_char(device, ';', ' ');
+    replace_char(model, ';', ' ');
+    replace_char(aclversion, ';', ' ');
+
+    // FORMAT: <DEVICE>;<PRODUCT>;<MODEL>;<GSL_VERSION>;<ACL_VERSION>
+    // Firefox MarketPlace will read and parse this string for device
+    // filtering. Please do NOT change this.
+    // NOTE: ACL version might be empty if ACL is not installed.
+    if (0 < snprintf(fullversion, sizeof(fullversion), "%s;%s;%s;%s;%s",
+                device, product, model, GSL_VERSION, aclversion)) {
+        ALOGD_IF(verbose, "Setting property '%s' to '%s'\n",
+                PROP_ACL_EXT_VERSION, fullversion);
+        property_set(PROP_ACL_EXT_VERSION, fullversion);
+    }
+}
+
 /* Return TRUE if the user has accepted the EULA, FALSE otherwise.
  * Currently this is only used on fresh installs, not uninstall
  * or upgrade.  In this case, if the user is at the interface
@@ -165,8 +206,6 @@ failure:
  * we're good.  A future implementaiton might use persistent
  * properties instead.
  */
-
-
 static bool is_eula_accepted() {
     int sock = -1;
     struct sockaddr_in addr;
@@ -520,12 +559,21 @@ static int doMount(const char *src, const char *dest, const char *fstype,
 static void setInstallStatus(char * status)
 {
     FILE * statusFile;
+    char * statusFilePath;
+
+    statusFilePath = getenv("ACL_INSTALLER_STATUS_FILE");
+    if(!statusFilePath) {
+        statusFilePath = DEFAULT_INSTALLER_STATUS_FILE;
+    }
 
     ALOGD("Setting installation status to \"%s\"\n", status);
-    statusFile = fopen(INSTALLER_STATUS_FILE, "w");
+    statusFile = fopen(statusFilePath, "w");
     if(statusFile) {
         fputs(status, statusFile);
         fclose(statusFile);
+    }
+    else {
+        ALOGD("Unable to write status '%s' to status file %s\n", status, statusFilePath);
     }
 
     property_set(PROP_INSTALL_STATUS, status);
@@ -654,6 +702,9 @@ reverted:
     /* Cleanup. */
     cleanupDir(temp_dir);
 
+    // Update the properties in case ACL version has changed
+    update_properties();
+
     return 0;
 
 failure:
@@ -665,6 +716,9 @@ failure:
         ALOGE ("----- ACL UPGRADE FAILED! -----\n");
     else
         ALOGE ("----- ACL INSTALLATION FAILED! -----\n");
+
+    // Update the properties in case ACL version has changed
+    update_properties();
 
     return -1;
 }
@@ -705,12 +759,18 @@ static int uninstall () {
 
     setInstallStatus(INSTALL_STATUS_UNINSTALLED);
 
+    // Update the properties in case ACL version has changed
+    update_properties();
+
     return 0;
 
 failure:
     setInstallStatus(INSTALL_STATUS_FAILED);
 
     ALOGE ("----- UNINSTALLATION FAILED! -----\n");
+
+    // Update the properties in case ACL version has changed
+    update_properties();
 
     return -1;
 }
@@ -919,52 +979,15 @@ static int run() {
     return ret;
 }
 
-// Replace all instances of 'c1' in string 's' with 'c2'
-static void replace_char(char *s, char c1, char c2)
-{
-    int i;
-    for(i = 0; s[i]; i++) {
-        if (s[i] == c1) {
-            s[i] = c2;
-        }
-    }
-}
-
-static void set_properties() {
-    char device[PROPERTY_VALUE_MAX] = {'\0'};
-    char model[PROPERTY_VALUE_MAX] = {'\0'};
-    char product[PROPERTY_VALUE_MAX] = {'\0'};
-    char fullversion[PROPERTY_VALUE_MAX] = {'\0'};
-
-    property_set(PROP_GSL_VERSION, GSL_VERSION);
-
-    property_get(PROP_PRODUCT_NAME,   product, NULL);
-    property_get(PROP_PRODUCT_DEVICE, device, NULL);
-    property_get(PROP_PRODUCT_MODEL,  model, NULL);
-    replace_char(product, ';', ' ');
-    replace_char(device, ';', ' ');
-    replace_char(model, ';', ' ');
-
-    // FORMAT: <DEVICE>;<PRODUCT>;<MODEL>;<GSL_VERSION>
-    // Firefox MarketPlace will read and parse this string for device
-    // filtering. Please do NOT change this.
-    if (0 < snprintf(fullversion, sizeof(fullversion), "%s;%s;%s;%s",
-                device, product, model, GSL_VERSION)) {
-        ALOGD_IF(verbose, "Setting property '%s' to '%s'\n",
-                PROP_ACL_EXT_VERSION, fullversion);
-        property_set(PROP_ACL_EXT_VERSION, fullversion);
-    }
-}
-
 int main(int argc, char *argv[]) {
     ALOGD ("INSTALLER version %s running...\n", GSL_VERSION);
-    set_properties();
+    update_properties();
 
     bool present = isACLPresent();      /* Is the install package present */
     bool running;                       /* Are the appopriate services running */
     int timeout=10;
     char installStatus[PROPERTY_VALUE_MAX] = {'\0'};
-    char *installStatusExists;
+    int installStatusExists;
 
     // Wait up to 10 seconds for surfaceflinger and zygote to come up,
     // if they're going to
@@ -980,7 +1003,8 @@ int main(int argc, char *argv[]) {
     }
 
     // set install status so that the ACL app can see it as well
-    if(installStatusExists = property_get(PROP_INSTALL_STATUS, installStatus, NULL)) {
+    installStatusExists = property_get(PROP_INSTALL_STATUS, installStatus, NULL);
+    if (installStatusExists) {
         setInstallStatus(installStatus);
     }
 

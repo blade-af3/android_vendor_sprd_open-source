@@ -12,18 +12,6 @@ LOCAL_DEBUG := 1
 
 LOCAL_PATH := $(call my-dir)
 
-# ---- libnss3 -----
-include $(CLEAR_VARS)
-ifeq (true,true)
-include $(CLEAR_VARS)
-LOCAL_MODULE := libnss3
-LOCAL_MODULE_CLASS := SHARED_LIBRARIES
-LOCAL_SRC_FILES := nss/libnss3.so
-LOCAL_MODULE_SUFFIX := .so
-LOCAL_MODULE_TAGS := optional
-include $(BUILD_PREBUILT)
-endif
-
 # ---- installer -----
 include $(CLEAR_VARS)
 
@@ -35,6 +23,7 @@ LOCAL_CFLAGS := \
 
 LOCAL_LDFLAGS := \
           -Wl,--no-fatal-warnings \
+          -L$(LOCAL_PATH)/nss -lnss3
 
 LOCAL_MODULE_TAGS := optional
 
@@ -48,11 +37,8 @@ LOCAL_SRC_FILES := \
 LOCAL_STATIC_LIBRARIES := \
           libmar          \
 
-#LOCAL_LDLIBS += -Lout/target/product/msm8610/system/b2g -lnss3
-
 LOCAL_SHARED_LIBRARIES := \
           libcutils \
-          libnss3 \
           libz \
 
 LOCAL_C_INCLUDES := \
@@ -60,8 +46,10 @@ LOCAL_C_INCLUDES := \
           gecko/security/nss/lib/nss/ \
           gecko/security/nss/lib/util/ \
           $(LOCAL_PATH)/libmar/src/ \
-          gaia/xulrunner-sdk-33/xulrunner-sdk/include/nspr/ \
-          gaia/xulrunner-sdk-33/xulrunner-sdk/include/ \
+          $(LOCAL_PATH)/include/ \
+          $(LOCAL_PATH)/include/nspr/ \
+
+LOCAL_REQUIRED_MODULES := acl_pubkey.der
 
 include $(BUILD_EXECUTABLE)
 
@@ -75,15 +63,12 @@ LOCAL_MODULE       := acl-installer.sh
 LOCAL_MODULE_TAGS  := optional
 
 LOCAL_MODULE_CLASS := DATA
-#LOCAL_MODULE_CLASS := EXECUTABLES
 
 LOCAL_SRC_FILES    := acl-installer.sh
-#LOCAL_SRC_FILES    := $(LOCAL_MODULE)
 
 LOCAL_MODULE_PATH  := $(TARGET_OUT_EXECUTABLES)
 
 include $(BUILD_PREBUILT)
-
 
 # ---- keys -----
 include $(CLEAR_VARS)
@@ -99,7 +84,6 @@ LOCAL_SRC_FILES := keys/acl_pubkey.der
 
 include $(BUILD_PREBUILT)
 
-CUSTOM_MODULES += libnss3
 CUSTOM_MODULES += acl-installer
 CUSTOM_MODULES += acl-installer.sh
 CUSTOM_MODULES += acl_pubkey.der
