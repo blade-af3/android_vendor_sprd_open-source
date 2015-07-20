@@ -373,21 +373,18 @@ static char* getVersionFromManifest(char *version, int maxsize) {
     FILE* fp = fopen(DEFAULT_WEBAPP_DIR"/"ACL_APP_ID"/"MANIFEST, "r");
     if (fp != NULL) {
         char line [MAX_LINE_SIZE] = {0};
+        char *p = NULL;
+
         while (fgets(line, sizeof (line), fp)) {
-            if (NULL != strstr(line, VERSION)) {
-                char *p = line;
-                while(isspace(*p)) p++; //strip spaces
-                // Ensure the line starts with "version"
-                if (0 == strncmp(p, VERSION, strlen(VERSION))) {
-                    p += strlen(VERSION);
-                    p = strchr(p, '"');
-                    if (p == NULL) continue;
-                    p++;
-                    char *aclVersion = strsep(&p, "\"");
-                    if (p != NULL) {
-                        ret = strncpy(version, aclVersion, maxsize-1);
-                        break;
-                    }
+            if (NULL != (p = strstr(line, VERSION))) {
+                p += strlen(VERSION);
+                p = strchr(p, '"');
+                if (p == NULL) continue;
+                p++;
+                char *aclVersion = strsep(&p, "\"");
+                if (p != NULL) {
+                    ret = strncpy(version, aclVersion, maxsize-1);
+                    break;
                 }
             }
         }
