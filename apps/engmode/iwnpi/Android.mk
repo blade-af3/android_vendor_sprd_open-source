@@ -13,7 +13,7 @@ INCLUDES += external/libnl-headers
 #Build iwnpi tool
 include $(CLEAR_VARS)
 LOCAL_MODULE := iwnpi
-LOCAL_MODULE_TAGS := debug 
+LOCAL_MODULE_TAGS := optional
 LOCAL_CFLAGS = $(IWNPI_CFLAGS)
 LOCAL_SRC_FILES = $(IWNPI_OBJS)
 LOCAL_C_INCLUDES = $(INCLUDES)
