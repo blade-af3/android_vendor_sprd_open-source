@@ -35,7 +35,7 @@ LIBIWNPI_CFLAGS += -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-
 INCLUDES += external/libnl-headers
 
 LOCAL_MODULE := libiwnpi
-LOCAL_MODULE_TAGS := debug
+LOCAL_MODULE_TAGS := optional
 LOCAL_CFLAGS = $(LIBIWNPI_CFLAGS)
 LOCAL_SRC_FILES = $(LIBIWNPI_OBJS)
 LOCAL_C_INCLUDES = $(INCLUDES)

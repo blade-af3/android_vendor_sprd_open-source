@@ -244,7 +244,8 @@ static int get_iwnpi_rxpktcnt(RX_PKTCNT *cnt)
 	int ret = -100;
 	int len;
 	char buf[TMP_BUF_SIZE] = {0};
-	char tmp[6] = {0} ;
+	char tmp[TMP_BUF_SIZE] = {0} ;
+
 	if(NULL == (fp = fopen(TMP_FILE, "r+")) )
 	{
 		ENG_LOG("no %s\n", TMP_FILE);
@@ -448,7 +449,8 @@ err:
 int wifi_channel_set(int ch,  char *rsp)
 {
 	int ret = -1;
-	char cmd[100] = {0};
+        char cmd[TMP_BUF_SIZE] = {0};
+
 	if(0 == g_wifi_data.eut_enter)
 	{
 		ENG_LOG("%s(), wifi_eut_enter:%d", __FUNCTION__, g_wifi_data.eut_enter);
@@ -572,7 +574,8 @@ err:
 static int wifi_tx_start(char *rsp)
 {
 	int ret;
-	char cmd[100] = {0};
+        char cmd[TMP_BUF_SIZE] = {0};
+
 	wifi_status_dump();
 	if(1 == g_wifi_data.tx_start)
 		goto ok;
@@ -608,7 +611,8 @@ err:
 static int wifi_tx_stop(char *rsp)
 {
 	int ret;
-	char cmd[100] = {0};
+        char cmd[TMP_BUF_SIZE] = {0};
+
 	wifi_status_dump();
 	if(0 == g_wifi_data.tx_start)
 		goto ok;
